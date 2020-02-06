@@ -54,7 +54,7 @@ def check_score():
 
     with open("output.csv") as csvfile:
         items = list(csv.reader(csvfile))
-        user_score = items[-1][1]
+        user_score = int(items[-1][1])
         pos = [0, 0, 0]
         prev_dir = 0
 
@@ -81,5 +81,5 @@ def check_score():
 
     # Compare computed score with the one from the CSV.
     if score != user_score:
-        raise check50.Failure(f"Computed score {score} does not equal given "
-                              f"score {user_score}")
+        raise check50.Failure("Score in output.csv is not equal to the "
+                              "computed score from the output.")
