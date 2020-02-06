@@ -27,19 +27,20 @@ def check_structure():
 
         # Check header for correct format.
         if list(df) != ["amino", "fold"]:
-            raise check50.Failure("Expected header of csv to be 'amino, fold'")
+            raise check50.Failure("Expected header of csv to be "
+                                  "['amino, fold']")
 
         # Check if all values in the amino column are of correct datatype and
         # value, except for the last row.
         if df["amino"].dtype != "object" or \
                 False in df["amino"][:-1].isin(["H", "P", "C"]).values:
-            raise check50.Failure("Invalid value in 'amino' column.")
+            raise check50.Failure("Invalid letter used for an amino.")
 
         # Check if all values in the fold column are of correct datatype and
         # value, except for the last row.
         if df["fold"].dtype != "int" or \
-                False in df["fold"][:-1].isin([0, -1, 1, -2, 2, -3, 3]).values:
-            raise check50.Failure("Invalid value in 'fold' column.")
+                False in df["fold"][:-1].isin(list(range(-3,4))).values:
+            raise check50.Failure("Invalid direction in output.csv.")
 
         # Check if the score in the last row is of correct value.
         if df["fold"].values[-1] > 0:
@@ -75,8 +76,8 @@ def check_score():
     # Loop over all Hs and Cs and compute their score to get the total score.
     score = 0
 
-    for amino in hc_pos.items():
-        pass
+    # for amino in hc_pos.items():
+    #     pass
 
     # Compare computed score with the one from the CSV.
     if score != user_score:
