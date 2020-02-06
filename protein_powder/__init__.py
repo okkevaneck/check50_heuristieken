@@ -65,7 +65,7 @@ def check_score():
 
             # Move to next amino acid and store direction.
             cur_dir = int(row[1])
-            prev_dir = -row[1]
+            prev_dir = -cur_dir
 
             if cur_dir == 1 or cur_dir == -1:
                 pos[0] += cur_dir
