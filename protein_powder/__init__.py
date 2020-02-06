@@ -15,13 +15,13 @@ import csv
 
 @check50.check()
 def exists():
-    """Checks if output.csv exists."""
+    """Check if output.csv exists."""
     check50.exists("output.csv")
 
 
 @check50.check(exists)
 def check_structure():
-    """Checks if strucutre of output.csv is correct."""
+    """Check if strucutre of output.csv is correct."""
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
 
@@ -48,7 +48,7 @@ def check_structure():
 
 @check50.check(check_structure)
 def check_score():
-    """Checks if given solution produces given score."""
+    """Check if given solution produces given score."""
     hc_pos = {}
 
     with open("output.csv") as csvfile:

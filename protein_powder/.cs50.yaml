@@ -1,4 +1,5 @@
 check50:
+  dependencies: "pandas"
   checks: __init__.py
   files:
     - !exclude "*"
