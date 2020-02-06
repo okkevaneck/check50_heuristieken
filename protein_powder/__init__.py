@@ -64,14 +64,15 @@ def check_score():
                 hc_pos[tuple(pos)] = [row[0], prev_dir]
 
             # Move to next amino acid and store direction.
+            cur_dir = int(row[1])
             prev_dir = -row[1]
 
-            if dir == 1 or dir == -1:
-                pos[0] += 1
-            elif dir == 2 or dir == -2:
-                pos[1] += dir
-            elif dir == 3 or dir == -3:
-                pos[2] += dir
+            if cur_dir == 1 or cur_dir == -1:
+                pos[0] += cur_dir
+            elif cur_dir == 2 or cur_dir == -2:
+                pos[1] += cur_dir
+            elif cur_dir == 3 or cur_dir == -3:
+                pos[2] += cur_dir
 
     # Loop over all Hs and Cs and compute their score to get the total score.
     score = 0
