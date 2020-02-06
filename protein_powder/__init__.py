@@ -55,16 +55,18 @@ def check_score():
     with open("output.csv") as csvfile:
         items = list(csv.reader(csvfile))
         user_score = int(items[-1][1])
+        pos_set = {(0, 0, 0)}
         pos = [0, 0, 0]
         prev_dir = 0
 
         # Store position of all Hs and Cs and their origin.
         for row in items[1:-1]:
+            cur_dir = int(row[1])
+
             if row[0] == "H" or row[0] == "C":
-                hc_pos[tuple(pos)] = [row[0], prev_dir]
+                hc_pos[pos] = [row[0], prev_dir, cur_dir]
 
             # Move to next amino acid and store direction.
-            cur_dir = int(row[1])
             prev_dir = -cur_dir
 
             if cur_dir == 1 or cur_dir == -1:
@@ -74,11 +76,35 @@ def check_score():
             elif cur_dir == 3 or cur_dir == -3:
                 pos[2] += cur_dir
 
+            # Check if protein folds onto itself.
+            if pos in pos_set:
+                raise check50.Failure("Protein folds onto itself, which is "
+                                      "not possible.")
+
+            pos_set.update([tuple(pos)])
+
     # Loop over all Hs and Cs and compute their score to get the total score.
     score = 0
+    positions = hc_pos.keys()
 
-    # for amino in hc_pos.items():
-    #     pass
+    for pos, [amino, prev_dir, next_dir] in hc_pos.items():
+        neighbours = []
+
+        for i in [-3, -2, -1, 1, 2, 3]:
+            if i == prev_dir or i == next_dir:
+                continue
+
+            if i == -1 or i == 1:
+                pos[0] += i
+            elif i == -2 or i == 2:
+                pos[1] += i // 2
+            elif i == -3 or i == 3:
+                pos[1] += i // 3
+
+            neighbours.append(pos)
+
+        # TODO: Itterate over neighbours and compare amino's, edit score accordingly.
+
 
     # Compare computed score with the one from the CSV.
     if score != user_score:
