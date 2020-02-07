@@ -61,6 +61,9 @@ def check_structure():
         pos = [0, 0, 0]
         next_dir = int(items[1][1])
 
+        if items[1][0] == "H" or items[1][0] == "C":
+            hc_pos[tuple(pos)] = [items[1][0], 0, next_dir]
+
         for row in items[2:-1]:
             # Compute position of next amino.
             if next_dir == 1 or next_dir == -1:
