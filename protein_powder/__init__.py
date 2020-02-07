@@ -20,8 +20,8 @@ def exists():
 
 
 @check50.check(exists)
-def check_structure():
-    """Check if strucutre of output.csv is correct."""
+def check_file():
+    """Check if strucutre and values of output.csv is correct."""
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
 
@@ -47,9 +47,9 @@ def check_structure():
             raise check50.Failure("Score of the fold is higher than 0.")
 
 
-@check50.check(check_structure)
-def check_score():
-    """Check if given solution produces given score."""
+@check50.check(check_file)
+def check_structure():
+    """Check if amino placement is correct."""
     hc_pos = {}
 
     with open("output.csv") as csvfile:
@@ -84,6 +84,37 @@ def check_score():
 
             pos_set.update([tuple(pos)])
 
+    return hc_pos, user_score
+
+
+def get_neighbour_aminos(pos, prev_dir, next_dir, positions):
+    """Get non-connected neighbour aminos of the amino at pos."""
+    neighbours = []
+
+    for i in [-3, -2, -1, 1, 2, 3]:
+        if i == prev_dir or i == next_dir:
+            continue
+
+        new_pos = list(pos)
+
+        if i == -1 or i == 1:
+            new_pos[0] += i
+        elif i == -2 or i == 2:
+            new_pos[1] += i // 2
+        elif i == -3 or i == 3:
+            new_pos[1] += i // 3
+
+        new_pos = tuple(new_pos)
+
+        if new_pos in positions:
+            neighbours.append(new_pos)
+
+    return neighbours
+
+
+@check50.check(check_structure)
+def check_score(hc_pos, user_score):
+    """Check if given solution produces given score."""
     # Loop over all Hs and Cs and compute their score to get the total score.
     hh_score = 0
     hc_score = 0
@@ -91,25 +122,7 @@ def check_score():
     positions = hc_pos.keys()
 
     for pos, [amino, prev_dir, next_dir] in hc_pos.items():
-        neighbours = []
-
-        for i in [-3, -2, -1, 1, 2, 3]:
-            if i == prev_dir or i == next_dir:
-                continue
-
-            new_pos = list(pos)
-
-            if i == -1 or i == 1:
-                new_pos[0] += i
-            elif i == -2 or i == 2:
-                new_pos[1] += i // 2
-            elif i == -3 or i == 3:
-                new_pos[1] += i // 3
-
-            new_pos = tuple(new_pos)
-
-            if new_pos in positions:
-                neighbours.append(new_pos)
+        neighbours = get_neighbour_aminos(pos, prev_dir, next_dir, positions)
 
         # Iterate over neighbour aminos and check if it scored points.
         for n in neighbours:
