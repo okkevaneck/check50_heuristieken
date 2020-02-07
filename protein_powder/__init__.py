@@ -39,7 +39,7 @@ def check_file():
         # Check if all values in the fold column are of correct datatype and
         # value, except for the last row.
         if df["fold"].dtype != "int" or \
-                False in df["fold"][:-1].isin(list(range(-3,4))).values:
+                False in df["fold"][:-1].isin(list(range(-3, 4))).values:
             raise check50.Failure("Invalid direction in output.csv.")
 
         # Check if the score in the last row is of correct value.
@@ -79,8 +79,8 @@ def check_structure():
 
             # Check if protein folds onto itself.
             if tuple(pos) in pos_set:
-                raise ("Protein folds onto itself, which is "
-                       "not possible.")
+                raise check50.Failure("Protein folds onto itself, which is "
+                                      "not possible.")
 
             pos_set.update([tuple(pos)])
 
@@ -141,8 +141,8 @@ def check_score(state):
 
     # Compare computed score with the one from the CSV.
     if hh_score + hc_score + cc_score != user_score:
-        raise ("Score in output.csv is not equal to the "
-               "computed score from the output.\nComputed "
-               f"score is composed of:\n\tHH-bonds: {hh_score}"
-               f"\n\tHC-bonds: {hc_score}\n\tCC-bonds: "
-               f"{cc_score}")
+        raise check50.Failure("Score in output.csv is not equal to the "
+                              "computed score from the output.\nComputed "
+                              f"score is composed of:\n\tHH-bonds: {hh_score}"
+                              f"\n\tHC-bonds: {hc_score}\n\tCC-bonds: "
+                              f"{cc_score}")
