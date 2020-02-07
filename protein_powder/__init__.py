@@ -113,8 +113,10 @@ def get_neighbour_aminos(pos, prev_dir, next_dir, positions):
 
 
 @check50.check(check_structure)
-def check_score(hc_pos, user_score):
+def check_score(state):
     """Check if given solution produces given score."""
+    hc_pos, user_score = state
+
     # Loop over all Hs and Cs and compute their score to get the total score.
     hh_score = 0
     hc_score = 0
