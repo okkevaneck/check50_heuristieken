@@ -84,7 +84,9 @@ def check_score():
             pos_set.update([tuple(pos)])
 
     # Loop over all Hs and Cs and compute their score to get the total score.
-    score = 0
+    hh_score = 0
+    hc_score = 0
+    cc_score = 0
     positions = hc_pos.keys()
 
     for pos, [amino, prev_dir, next_dir] in hc_pos.items():
@@ -101,12 +103,22 @@ def check_score():
             elif i == -3 or i == 3:
                 pos[1] += i // 3
 
-            neighbours.append(pos)
+            if pos in positions:
+                neighbours.append(pos)
 
-        # TODO: Itterate over neighbours and compare amino's, edit score accordingly.
-
+        # Iterate over neighbour aminos and check if it scored points.
+        for n in neighbours:
+            if amino == "H" and hc_pos[n][0] == "H":
+                hh_score -= 1
+            elif amino == "H" and hc_pos[n][0] == "C":
+                hc_score -= 1
+            else:
+                cc_score -= 5
 
     # Compare computed score with the one from the CSV.
-    if score != user_score:
+    if hh_score + hc_score + cc_score != user_score:
         raise check50.Failure("Score in output.csv is not equal to the "
-                              "computed score from the output.")
+                              "computed score from the output.\nComputed "
+                              f"score is composed of:\n\tHH-bonds: {hh_score}"
+                              f"\n\tHC-bonds: {hc_score}\n\tCC-bonds: "
+                              f"{cc_score}")
