@@ -64,7 +64,7 @@ def check_score():
             cur_dir = int(row[1])
 
             if row[0] == "H" or row[0] == "C":
-                hc_pos[pos] = [row[0], prev_dir, cur_dir]
+                hc_pos[tuple(pos)] = [row[0], prev_dir, cur_dir]
 
             # Move to next amino acid and store direction.
             prev_dir = -cur_dir
@@ -96,15 +96,17 @@ def check_score():
             if i == prev_dir or i == next_dir:
                 continue
 
-            if i == -1 or i == 1:
-                pos[0] += i
-            elif i == -2 or i == 2:
-                pos[1] += i // 2
-            elif i == -3 or i == 3:
-                pos[1] += i // 3
+            new_pos = list(pos)
 
-            if pos in positions:
-                neighbours.append(pos)
+            if i == -1 or i == 1:
+                new_pos[0] += i
+            elif i == -2 or i == 2:
+                new_pos[1] += i // 2
+            elif i == -3 or i == 3:
+                new_pos[1] += i // 3
+
+            if new_pos in positions:
+                neighbours.append(tuple(new_pos))
 
         # Iterate over neighbour aminos and check if it scored points.
         for n in neighbours:
