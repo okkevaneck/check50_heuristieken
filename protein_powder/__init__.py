@@ -55,32 +55,33 @@ def check_score():
     with open("output.csv") as csvfile:
         items = list(csv.reader(csvfile))
         user_score = int(items[-1][1])
+
+        # Initialise values for origin amino.
         pos_set = {(0, 0, 0)}
         pos = [0, 0, 0]
-        prev_dir = 0
+        next_dir = int(items[1][1])
 
-        # Store position of all Hs and Cs and their origin.
-        for row in items[1:-1]:
-            cur_dir = int(row[1])
+        for row in items[2:-1]:
+            # Compute position of next amino.
+            if next_dir == 1 or next_dir == -1:
+                pos[0] += next_dir
+            elif next_dir == 2 or next_dir == -2:
+                pos[1] += next_dir // 2
+            elif next_dir == 3 or next_dir == -3:
+                pos[2] += next_dir // 3
+
+            # Set link info and remember amino if possible score maker.
+            prev_dir = -next_dir
+            next_dir = int(row[1])
 
             if row[0] == "H" or row[0] == "C":
-                hc_pos[tuple(pos)] = [row[0], prev_dir, cur_dir]
-
-            # Move to next amino acid and store direction.
-            prev_dir = -cur_dir
-
-            if cur_dir == 1 or cur_dir == -1:
-                pos[0] += cur_dir
-            elif cur_dir == 2 or cur_dir == -2:
-                pos[1] += cur_dir
-            elif cur_dir == 3 or cur_dir == -3:
-                pos[2] += cur_dir
+                hc_pos[tuple(pos)] = [row[0], prev_dir, next_dir]
 
             # Check if protein folds onto itself.
-            print(f"Trying to put {tuple(pos)} in:\n{pos_set}")
+            print(f"Trying to put {tuple(pos)} after next_dir: {next_dir} in:\n{pos_set}")
             if tuple(pos) in pos_set:
-                raise check50.Failure("Protein folds onto itself, which is "
-                                      "not possible.")
+                raise ("Protein folds onto itself, which is "
+                       "not possible.")
 
             pos_set.update([tuple(pos)])
 
@@ -120,8 +121,8 @@ def check_score():
 
     # Compare computed score with the one from the CSV.
     if hh_score + hc_score + cc_score != user_score:
-        raise check50.Failure("Score in output.csv is not equal to the "
-                              "computed score from the output.\nComputed "
-                              f"score is composed of:\n\tHH-bonds: {hh_score}"
-                              f"\n\tHC-bonds: {hc_score}\n\tCC-bonds: "
-                              f"{cc_score}")
+        raise ("Score in output.csv is not equal to the "
+               "computed score from the output.\nComputed "
+               f"score is composed of:\n\tHH-bonds: {hh_score}"
+               f"\n\tHC-bonds: {hc_score}\n\tCC-bonds: "
+               f"{cc_score}")
