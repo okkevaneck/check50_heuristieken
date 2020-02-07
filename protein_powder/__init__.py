@@ -77,7 +77,7 @@ def check_score():
                 pos[2] += cur_dir
 
             # Check if protein folds onto itself.
-            if pos in pos_set:
+            if tuple(pos) in pos_set:
                 raise check50.Failure("Protein folds onto itself, which is "
                                       "not possible.")
 
