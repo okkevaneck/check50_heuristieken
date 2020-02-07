@@ -142,7 +142,7 @@ def check_score(state):
     # Compare computed score with the one from the CSV.
     if hh_score + hc_score + cc_score != user_score:
         raise check50.Failure("Score in output.csv is not equal to the "
-                              "computed score from the output.\n\tComputed "
-                              f"score is composed of:\n\tHH-bonds: {hh_score}"
+                              "computed score from the output. Computed "
+                              f"score is made up of:\n\tHH-bonds: {hh_score}"
                               f"\n\tHC-bonds: {hc_score}\n\tCC-bonds: "
                               f"{cc_score}")
