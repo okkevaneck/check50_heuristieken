@@ -130,7 +130,7 @@ def check_score(state):
         for n in neighbours:
             if amino == "H" and hc_pos[n][0] == "H":
                 hh_score -= 1
-            elif amino == "H" and hc_pos[n][0] == "C":
+            elif amino != hc_pos[n][0]:
                 hc_score -= 1
             else:
                 cc_score -= 5
