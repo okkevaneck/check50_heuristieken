@@ -102,7 +102,7 @@ def get_neighbour_aminos(pos, prev_dir, next_dir, positions):
         elif i == -2 or i == 2:
             new_pos[1] += i // 2
         elif i == -3 or i == 3:
-            new_pos[1] += i // 3
+            new_pos[2] += i // 3
 
         new_pos = tuple(new_pos)
 
