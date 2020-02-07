@@ -78,7 +78,6 @@ def check_score():
                 hc_pos[tuple(pos)] = [row[0], prev_dir, next_dir]
 
             # Check if protein folds onto itself.
-            print(f"Trying to put {tuple(pos)} after next_dir: {next_dir} in:\n{pos_set}")
             if tuple(pos) in pos_set:
                 raise ("Protein folds onto itself, which is "
                        "not possible.")
@@ -107,8 +106,10 @@ def check_score():
             elif i == -3 or i == 3:
                 new_pos[1] += i // 3
 
+            new_pos = tuple(new_pos)
+
             if new_pos in positions:
-                neighbours.append(tuple(new_pos))
+                neighbours.append(new_pos)
 
         # Iterate over neighbour aminos and check if it scored points.
         for n in neighbours:
@@ -118,6 +119,10 @@ def check_score():
                 hc_score -= 1
             else:
                 cc_score -= 5
+
+    hh_score //= 2
+    hc_score //= 2
+    cc_score //= 2
 
     # Compare computed score with the one from the CSV.
     if hh_score + hc_score + cc_score != user_score:
