@@ -52,7 +52,7 @@ def check_file():
             error = "Invalid value(s) used for a fold. Expected natural " \
                     "numbers, but found:\n"
 
-            for i, item in enumerate(df['fold']):
+            for i, item in enumerate(df['fold']): # TODO: Check if last is 0.
                 try:
                     int(item)
                 except ValueError:
@@ -119,8 +119,8 @@ def get_neighbour_aminos(pos, prev_dir, next_dir, hc_coords):
         # Create new position of possible neighbour. Check for division by zero.
         new_pos = list(pos)
 
-        if next_dir:
-            new_pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
+        if i:
+            new_pos[abs(i) - 1] += i // abs(i)
 
         new_pos = tuple(new_pos)
 
@@ -154,7 +154,7 @@ def check_score(state):
             else:
                 cc_score -= 5
 
-    hh_score //= 1
+    hh_score //= 2
     hc_score //= 2
     cc_score //= 2
 
