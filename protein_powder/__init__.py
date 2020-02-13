@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 """
-This file uses check50 to check if their is an output.csv file, if it is
-structured according to the specifications from the case, and if it produces
-the score given in the last row.
+This file uses check50 to check the output of an Protein Powder solution. It
+does so by doing the following tests in this order:
+    - Check if output.csv exits
+    - Check if the file has valid values and is structured correctly
+    - Check if the structure of the protein is correct
+    - Check if the score in output.csv is correctly computed, given the
+        solution
+
+    Note that the last test requires variables from the one before. It is
+    therefor not possible to switch the order of these two tests!
 
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com
