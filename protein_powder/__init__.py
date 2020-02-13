@@ -72,32 +72,28 @@ def check_structure():
     hc_pos = {}
 
     with open("output.csv") as csvfile:
-        items = list(csv.reader(csvfile))
-        user_score = int(items[-1][1])
+        df = pd.read_csv(csvfile)
+        user_score = int(df["fold"][-1])
+        dim = df["fold"][:-1].abs().max()
 
         # Initialise values for origin amino.
-        pos_set = {(0, 0, 0)}
-        pos = [0, 0, 0]
-        next_dir = int(items[1][1])
+        pos_set = {tuple(0 for _ in range(dim))}
+        pos = list(0 for _ in range(dim))
+        next_dir = df["fold"][1]
 
-        if items[1][0] == "H" or items[1][0] == "C":
-            hc_pos[tuple(pos)] = [items[1][0], 0, next_dir]
+        if df["fold"][0] == "H" or df["fold"][0] == "C":
+            hc_pos[tuple(pos)] = [df["fold"][0], 0, next_dir]
 
-        for row in items[2:-1]:
+        for _, [amino, fold] in df.iloc[1:-1].iterrows():
             # Compute position of next amino.
-            if next_dir == 1 or next_dir == -1:
-                pos[0] += next_dir
-            elif next_dir == 2 or next_dir == -2:
-                pos[1] += next_dir // 2
-            elif next_dir == 3 or next_dir == -3:
-                pos[2] += next_dir // 3
+            pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
 
             # Set link info and remember amino if possible score maker.
             prev_dir = -next_dir
-            next_dir = int(row[1])
+            next_dir = fold
 
-            if row[0] == "H" or row[0] == "C":
-                hc_pos[tuple(pos)] = [row[0], prev_dir, next_dir]
+            if amino == "H" or amino == "C":
+                hc_pos[tuple(pos)] = [amino, prev_dir, next_dir]
 
             # Check if protein folds onto itself.
             if tuple(pos) in pos_set:
@@ -109,26 +105,23 @@ def check_structure():
     return hc_pos, user_score
 
 
-def get_neighbour_aminos(pos, prev_dir, next_dir, positions):
+def get_neighbour_aminos(pos, prev_dir, next_dir, hc_coords):
     """Get non-connected neighbour aminos of the amino at pos."""
     neighbours = []
+    moves = list(range(-len(pos), len(pos)))
 
-    for i in [-3, -2, -1, 1, 2, 3]:
+    for i in moves:
+        # Exclude the neighbours that are linked.
         if i == prev_dir or i == next_dir:
             continue
 
+        # Create new position of possible neighbour.
         new_pos = list(pos)
-
-        if i == -1 or i == 1:
-            new_pos[0] += i
-        elif i == -2 or i == 2:
-            new_pos[1] += i // 2
-        elif i == -3 or i == 3:
-            new_pos[2] += i // 3
-
+        new_pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
         new_pos = tuple(new_pos)
 
-        if new_pos in positions:
+        # Only save the position if it is an existing H or C amino.
+        if new_pos in hc_coords:
             neighbours.append(new_pos)
 
     return neighbours
@@ -143,10 +136,10 @@ def check_score(state):
     hh_score = 0
     hc_score = 0
     cc_score = 0
-    positions = hc_pos.keys()
+    hc_coords = hc_pos.keys()
 
     for pos, [amino, prev_dir, next_dir] in hc_pos.items():
-        neighbours = get_neighbour_aminos(pos, prev_dir, next_dir, positions)
+        neighbours = get_neighbour_aminos(pos, prev_dir, next_dir, hc_coords)
 
         # Iterate over neighbour aminos and check if it scored points.
         for n in neighbours:
