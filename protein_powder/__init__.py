@@ -18,7 +18,7 @@ does so by doing the following tests in this order:
 import check50
 import pandas as pd
 import numpy as np
-import csv
+import os
 
 
 @check50.check()
@@ -29,14 +29,28 @@ def exists():
 
 @check50.check(exists)
 def check_file():
-    """Check if strucutre and values of output.csv is correct."""
+    """Check if the structure and values of output.csv is correct."""
+    # Check if output.csv has content.
+    if os.stat("output.csv").st_size == 0:
+        raise check50.Failure("Output.csv may not be empty. Provide at least "
+                              "an header row and a row with a score.")
+
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
 
         # Check header for correct format.
         if list(df) != ["amino", "fold"]:
-            raise check50.Failure("Expected header of csv to be "
+            raise check50.Failure("Expected header of the csv to be "
                                   "'amino,fold'")
+
+        # Check footer for correct format.
+        if len(df) < 1 or df['amino'].iloc[-1] != "score" or df['fold'].iloc[-1].dtype != int:
+            raise check50.Failure("Expected last row of the csv to be "
+                                  "'score,<integer>'")
+
+        # Stop checking if no aminos are in the output file.
+        if len(df) == 1:
+            return
 
         # Check if all values in the amino column are of correct datatype and
         # value, except for the last row.
@@ -55,16 +69,21 @@ def check_file():
 
         # Check if all values in the fold column are of correct datatype and
         # value, except for the last row.
-        if df["fold"].dtype != "int":
+        if df["fold"].dtype != "int" or df["fold"].iloc[-2] != 0:
             error = "Invalid value(s) used for a fold. Expected natural " \
                     "numbers, but found:\n"
 
-            for i, item in enumerate(df['fold']): # TODO: Check if last is 0.
+            for i, item in enumerate(df['fold']):
                 try:
                     int(item)
                 except ValueError:
                     error = "".join([error, f"\t'{df['fold'][i]}' \ton row "
                                             f"{i}\n"])
+
+            if df["fold"].iloc[-2] != 0:
+                error = "".join([error, f"\t'{df['fold'].iloc[-2]}' \ton row "
+                                        f"{len(df['fold']) - 2}. Expected 0 "
+                                        f"since it is the last amino.\n"])
 
             raise check50.Failure(error)
 
@@ -82,6 +101,10 @@ def check_structure():
         df = pd.read_csv(csvfile)
         user_score = df["fold"].iloc[-1]
         dim = df["fold"][:-1].abs().max()
+
+        # Stop checking if no aminos are in the output file.
+        if len(df) == 1:
+            return hc_pos, user_score
 
         # Initialise values for origin amino.
         pos_set = {tuple(0 for _ in range(dim))}

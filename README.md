@@ -2,7 +2,7 @@
 **Author:** Okke van Eck  
 **Check50 Docs:** https://cs50.readthedocs.io/check50/
 
-#### Setup
+#### Setup check environment.
 You must have python3 installed and a possibility for creating a virtual
 environment. The example below uses the python3-venv package, but you can use
 your own as well.
@@ -20,13 +20,23 @@ source venv/bin/activate
 `pip install -r requirements.txt`
 
 
-#### Run
-To run a check50, `cd` into the directory of the case you want to test. Let's
+#### Run checks.
+It is possible to run the check50 tests via the online version on GitHub, or
+locally in a development environment. The different options are separated in 
+sections. For all checks, you must be in the folder of the check itself. So
+`cd` into the directory of the case you want to test. Let's
 denote the folder name of the case as `<case>`.    
-Then you can run the check on the CS50 servers via the command:  
-`check50 OkkeVanEck/cs50_heuristieken/master/<case>`.  
-You can also run the check locally by specifying the `--local` flag.
 
+###### Run on the check50 servers.
+You can run the checks on GitHub on the check50-servers by running the command:  
+`check50 OkkeVanEck/cs50_heuristieken/master/<case>`
 
-It is also possible to run the code in developer mode, which is basicly running 
-the check locally. This can be done by the command `check50 --dev .`.
+###### Run locally
+You can run the checks on GitHub locally by running the same command with the
+`--local` flag specified:  
+`check50 --local OkkeVanEck/cs50_heuristieken/master/<case>`
+
+###### Run local code
+You can run your local version of the checks by running `check50` with the 
+`--dev` flag:  
+`check50 --dev .`
