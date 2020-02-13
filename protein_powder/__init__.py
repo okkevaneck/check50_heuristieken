@@ -116,9 +116,12 @@ def get_neighbour_aminos(pos, prev_dir, next_dir, hc_coords):
         if i == prev_dir or i == next_dir:
             continue
 
-        # Create new position of possible neighbour.
+        # Create new position of possible neighbour. Check for division by zero.
         new_pos = list(pos)
-        new_pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
+
+        if next_dir:
+            new_pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
+
         new_pos = tuple(new_pos)
 
         # Only save the position if it is an existing H or C amino.
