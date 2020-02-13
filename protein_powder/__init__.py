@@ -41,8 +41,8 @@ def check_file():
                     "or 'C', but found:\n"
 
             for idx in idxs:
-                error = "".join([error, f"    '{df['amino'][idx]}' \t"
-                                        f"on row {idx}\n"])
+                error = "".join([error, f"\t'{df['amino'][idx]}' \ton row "
+                                        f"{idx}\n"])
 
             raise check50.Failure(error)
 
@@ -56,8 +56,8 @@ def check_file():
                 try:
                     int(item)
                 except ValueError:
-                    error = "".join([error, f"    '{df['fold'][i]}' \t"
-                                            f"on row {i}\n"])
+                    error = "".join([error, f"\t'{df['fold'][i]}' \ton row "
+                                            f"{i}\n"])
 
             raise check50.Failure(error)
 
