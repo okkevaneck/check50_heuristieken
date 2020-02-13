@@ -10,6 +10,7 @@ the score given in the last row.
 
 import check50
 import pandas as pd
+import numpy as np
 import csv
 
 
@@ -28,13 +29,22 @@ def check_file():
         # Check header for correct format.
         if list(df) != ["amino", "fold"]:
             raise check50.Failure("Expected header of csv to be "
-                                  "['amino, fold']")
+                                  "'amino,fold'")
 
         # Check if all values in the amino column are of correct datatype and
         # value, except for the last row.
-        if df["amino"].dtype != "object" or \
-                False in df["amino"][:-1].isin(["H", "P", "C"]).values:
-            raise check50.Failure("Invalid letter used for an amino.")
+        amino_bools = df["amino"][:-1].isin(["H", "P", "C"]).values
+
+        if False in amino_bools:
+            idxs = np.where(amino_bools == False)[0]
+            error = "Invalid letter(s) used for an amino. Expected 'H', 'P' " \
+                    "or 'C', but found:\n"
+
+            for idx in idxs:
+                error = "".join([error, f"    '{df['amino'][idx]}' \t"
+                                        f"on row {idx}\n"])
+
+            raise check50.Failure(error)
 
         # Check if all values in the fold column are of correct datatype and
         # value, except for the last row.
