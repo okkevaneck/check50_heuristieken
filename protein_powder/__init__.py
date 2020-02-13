@@ -73,16 +73,16 @@ def check_structure():
 
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
-        user_score = int(df["fold"][-1])
+        user_score = df["fold"].iloc[-1]
         dim = df["fold"][:-1].abs().max()
 
         # Initialise values for origin amino.
         pos_set = {tuple(0 for _ in range(dim))}
         pos = list(0 for _ in range(dim))
-        next_dir = df["fold"][1]
+        next_dir = df["fold"].iloc[1]
 
-        if df["fold"][0] == "H" or df["fold"][0] == "C":
-            hc_pos[tuple(pos)] = [df["fold"][0], 0, next_dir]
+        if df["amino"].iloc[0] == "H" or df["amino"].iloc[0] == "C":
+            hc_pos[tuple(pos)] = [df["amino"].iloc[0], 0, next_dir]
 
         for _, [amino, fold] in df.iloc[1:-1].iterrows():
             # Compute position of next amino.
