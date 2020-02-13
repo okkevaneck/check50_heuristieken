@@ -48,15 +48,16 @@ def check_file():
 
         # Check if all values in the fold column are of correct datatype and
         # value, except for the last row.
-        error = "Invalid value(s) used for a fold. Expected natural " \
-                "numbers, but found:\n"
+        if df["fold"].dtype != "int":
+            error = "Invalid value(s) used for a fold. Expected natural " \
+                    "numbers, but found:\n"
 
-        for i, item in enumerate(df['fold']):
-            try:
-                int(item)
-            except ValueError:
-                error = "".join([error, f"    '{df['fold'][i]}' \t"
-                                        f"on row {i}\n"])
+            for i, item in enumerate(df['fold']):
+                try:
+                    int(item)
+                except ValueError:
+                    error = "".join([error, f"    '{df['fold'][i]}' \t"
+                                            f"on row {i}\n"])
 
             raise check50.Failure(error)
 
