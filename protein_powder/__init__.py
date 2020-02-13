@@ -109,19 +109,18 @@ def check_structure():
 def get_neighbour_aminos(pos, prev_dir, next_dir, hc_coords):
     """Get non-connected neighbour aminos of the amino at pos."""
     neighbours = []
+
+    # Setup possible neighbours, exclude self and linked aminos.
     moves = list(range(-len(pos), len(pos) + 1))
+    excludes = {prev_dir, next_dir, 0}
+
+    for move in excludes:
+        moves.remove(move)
 
     for i in moves:
-        # Exclude the neighbours that are linked.
-        if i == prev_dir or i == next_dir:
-            continue
-
-        # Create new position of possible neighbour. Check for division by zero.
+        # Create new position of possible neighbour.
         new_pos = list(pos)
-
-        if i:
-            new_pos[abs(i) - 1] += i // abs(i)
-
+        new_pos[abs(i) - 1] += i // abs(i)
         new_pos = tuple(new_pos)
 
         # Only save the position if it is an existing H or C amino.
