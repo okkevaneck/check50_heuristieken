@@ -154,7 +154,7 @@ def check_score(state):
             else:
                 cc_score -= 5
 
-    hh_score //= 2
+    hh_score //= 1
     hc_score //= 2
     cc_score //= 2
 
