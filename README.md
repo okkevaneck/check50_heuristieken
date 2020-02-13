@@ -26,3 +26,7 @@ denote the folder name of the case as `<case>`.
 Then you can run the check on the CS50 servers via the command:  
 `check50 OkkeVanEck/cs50_heuristieken/master/<case>`.  
 You can also run the check locally by specifying the `--local` flag.
+
+
+It is also possible to run the code in developer mode, which is basicly running 
+the check locally. This can be done by the command `check50 --dev .`.
