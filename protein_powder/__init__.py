@@ -85,8 +85,9 @@ def check_structure():
             hc_pos[tuple(pos)] = [df["amino"].iloc[0], 0, next_dir]
 
         for _, [amino, fold] in df.iloc[1:-1].iterrows():
-            # Compute position of next amino.
-            pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
+            # Compute position of next amino. Check for division by zero.
+            if next_dir:
+                pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
 
             # Set link info and remember amino if possible score maker.
             prev_dir = -next_dir
