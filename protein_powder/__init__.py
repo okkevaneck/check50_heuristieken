@@ -63,7 +63,7 @@ def check_file():
 
         # Check if the score in the last row is of correct value.
         if df["fold"].values[-1] > 0:
-            raise check50.Failure("Score of the fold is higher than 0.")
+            raise check50.Failure("The score for a fold should be negative.")
 
 
 @check50.check(check_file)
