@@ -84,7 +84,7 @@ def check_structure():
         if df["amino"].iloc[0] == "H" or df["amino"].iloc[0] == "C":
             hc_pos[tuple(pos)] = [df["amino"].iloc[0], 0, next_dir]
 
-        for _, [amino, fold] in df.iloc[1:-1].iterrows():
+        for _, [amino, fold] in df[1:-1].iterrows():
             # Compute position of next amino. Check for division by zero.
             if next_dir:
                 pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
@@ -109,7 +109,7 @@ def check_structure():
 def get_neighbour_aminos(pos, prev_dir, next_dir, hc_coords):
     """Get non-connected neighbour aminos of the amino at pos."""
     neighbours = []
-    moves = list(range(-len(pos), len(pos)))
+    moves = list(range(-len(pos), len(pos) + 1))
 
     for i in moves:
         # Exclude the neighbours that are linked.
