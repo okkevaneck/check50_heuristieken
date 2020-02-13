@@ -79,12 +79,12 @@ def check_structure():
         # Initialise values for origin amino.
         pos_set = {tuple(0 for _ in range(dim))}
         pos = list(0 for _ in range(dim))
-        next_dir = df["fold"].iloc[1]
+        next_dir = df["fold"].iloc[0]
 
         if df["amino"].iloc[0] == "H" or df["amino"].iloc[0] == "C":
             hc_pos[tuple(pos)] = [df["amino"].iloc[0], 0, next_dir]
 
-        for _, [amino, fold] in df.iloc[2:-1].iterrows():
+        for _, [amino, fold] in df.iloc[1:-1].iterrows():
             # Compute position of next amino. Check for division by zero.
             if next_dir:
                 pos[abs(next_dir) - 1] += next_dir // abs(next_dir)
