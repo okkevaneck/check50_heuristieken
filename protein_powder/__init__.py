@@ -48,9 +48,17 @@ def check_file():
 
         # Check if all values in the fold column are of correct datatype and
         # value, except for the last row.
-        if df["fold"].dtype != "int" or \
-                False in df["fold"][:-1].isin(list(range(-3, 4))).values:
-            raise check50.Failure("Invalid direction in output.csv.")
+        error = "Invalid value(s) used for a fold. Expected natural " \
+                "numbers, but found:\n"
+
+        for i, item in enumerate(df['fold']):
+            try:
+                int(item)
+            except ValueError:
+                error = "".join([error, f"    '{df['fold'][i]}' \t"
+                                        f"on row {i}\n"])
+
+            raise check50.Failure(error)
 
         # Check if the score in the last row is of correct value.
         if df["fold"].values[-1] > 0:
