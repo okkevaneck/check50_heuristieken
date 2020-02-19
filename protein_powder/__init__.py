@@ -44,11 +44,12 @@ def check_file():
                                   "'amino,fold'")
 
         # Check footer for correct format.
-        if len(df) < 1 or df['amino'].iloc[-1] != "score" or df['fold'].iloc[-1].dtype != int:
+        if len(df) < 1 or df['amino'].iloc[-1] != "score" or \
+                df['fold'].iloc[-1].dtype != int:
             raise check50.Failure("Expected last row of the csv to be "
                                   "'score,<integer>'")
 
-        # Stop checking if no aminos are in the output file.
+        # Stop checking if there are no aminos are in the output file.
         if len(df) == 1:
             return
 
@@ -102,7 +103,7 @@ def check_structure():
         user_score = df["fold"].iloc[-1]
         dim = df["fold"][:-1].abs().max()
 
-        # Stop checking if no aminos are in the output file.
+        # Stop checking if there are no aminos are in the output file.
         if len(df) == 1:
             return hc_pos, user_score
 

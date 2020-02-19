@@ -1,0 +1,6 @@
+structure,bottom_left_xy,top_right_xy,type
+water_1,"0,0","32,180",WATER
+woning_1,"80,30","88,38",EENGEZINSWONING
+bungalow_1,"33,50","44,57",BUNGALOW
+maison_1,"148,170","160,180",MAISON
+score,45000

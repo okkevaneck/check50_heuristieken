@@ -40,3 +40,16 @@ You can run the checks on GitHub locally by running the same command with the
 You can run your local version of the checks by running `check50` with the 
 `--dev` flag:  
 `check50 --dev .`
+
+
+### Required case changes
+There are some changes required for the cases. The changes are de described 
+below, devided by case.
+
+##### Protein Powder
+- Remove spaces behind comma's in output.csv
+- Add a footer to output.csv with the score: `score,<integer>`
+
+##### Amstelhaege
+- Remove spaces behand comma's in output.csv
+- Add a footer to output.csv with the score: `score,<integer>`
