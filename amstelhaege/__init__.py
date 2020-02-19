@@ -83,8 +83,28 @@ def check_file():
 
             raise check50.Failure(error)
 
+        # Check if the percentage of different houses are correct.
+        # TODO: Percentage division of houses are:
+        #   - 60% EENGEZINSWONINGEN
+        #   - 25% BUNGALOWS
+        #   - 15% MAISONS
+
 
 @check50.check(check_file)
 def check_placement():
     """Check if all objects are placed correctly."""
+    pass
+
+    # TODO: implement the following checks:
+    #   - Are all houses on the 160 x 180 grid?
+    #   - Are no houses placed on water?
+    #   - Are the vrijstand of the houses at least: (also checks if houses are placed onto each other)
+    #       - 2m for EENGEZINSWONING
+    #       - 3m for BUNGALOW
+    #       - 6m for MAISON
+
+
+@check50.check(check_placement)
+def check_score():
+    """Check if solution produces score specified in output.csv."""
     pass
