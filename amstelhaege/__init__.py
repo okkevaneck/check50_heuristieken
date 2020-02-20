@@ -41,8 +41,13 @@ def check_file():
                                   "type'")
 
         # Check footer for correct format.
-        if len(df) < 1 or df['structure'].iloc[-1] != "score" or \
-                df['bottom_left_xy'].iloc[-1].dtype != int:
+        if len(df) < 1 or df['structure'].iloc[-1] != "score":
+            raise check50.Failure("Expected last row of the csv to be "
+                                  "'score,<integer>'")
+
+        try:
+            int(df['bottom_left_xy'].iloc[-1])
+        except ValueError:
             raise check50.Failure("Expected last row of the csv to be "
                                   "'score,<integer>'")
 
@@ -83,11 +88,24 @@ def check_file():
 
             raise check50.Failure(error)
 
+        # Check if all structure names are unique.
+        dup_bools = list(df["structure"].duplicated())
+        if True in dup_bools:
+            idxs = np.where(coord_bools == False)[0]
+            error = "Expected all structure values to be unique, but found:\n"
+
+            for idx in idxs:
+                error = "".join([error, f"\t'{df['structure'][idx]}' \ton row "
+                                        f"{idx}.\n"])
+
+            raise check50.Failure(error)
+
         # Check if the percentage of different houses are correct.
-        # TODO: Percentage division of houses are:
-        #   - 60% EENGEZINSWONINGEN
-        #   - 25% BUNGALOWS
-        #   - 15% MAISONS
+        perc = round(df['type'][:-1][df.type != "WATER"]
+                     .value_counts(normalize=True) * 100).astype(int)
+        if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or perc["MAISON"] != 15:
+            raise check50.Failure("Percentage of different houses are incorrect")
+
 
 
 @check50.check(check_file)
@@ -97,6 +115,7 @@ def check_placement():
 
     # TODO: implement the following checks:
     #   - Are all houses on the 160 x 180 grid?
+    #       - Keep rotation in mind.
     #   - Are no houses placed on water?
     #   - Are the vrijstand of the houses at least: (also checks if houses are placed onto each other)
     #       - 2m for EENGEZINSWONING

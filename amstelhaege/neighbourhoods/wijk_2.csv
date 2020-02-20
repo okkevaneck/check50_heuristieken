@@ -1,0 +1,5 @@
+structure, bottom_left_xy, top_right_xy, type
+water_1, "0,135", "32,180", WATER
+water_2, "0,0", "32,45", WATER
+water_3, "128,135", "160,180", WATER
+water_4, "128,0", "160,45", WATER
