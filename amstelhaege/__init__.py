@@ -89,10 +89,11 @@ def check_file():
             raise check50.Failure(error)
 
         # Check if all structure names are unique.
-        dup_bools = list(df["structure"].duplicated())
+        dup_bools = np.array(df["structure"].duplicated())
         if True in dup_bools:
-            idxs = np.where(coord_bools == False)[0]
-            error = "Expected all structure values to be unique, but found:\n"
+            idxs = np.where(dup_bools == True)[0]
+            error = "Expected all structure values to be unique, but found " \
+                    "duplicate:\n"
 
             for idx in idxs:
                 error = "".join([error, f"\t'{df['structure'][idx]}' \ton row "
@@ -103,7 +104,8 @@ def check_file():
         # Check if the percentage of different houses are correct.
         perc = round(df['type'][:-1][df.type != "WATER"]
                      .value_counts(normalize=True) * 100).astype(int)
-        if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or perc["MAISON"] != 15:
+        if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or \
+                perc["MAISON"] != 15:
             raise check50.Failure("Percentage of different houses are incorrect")
 
 
