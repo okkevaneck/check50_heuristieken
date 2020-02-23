@@ -106,7 +106,8 @@ def check_file():
                      .value_counts(normalize=True) * 100).astype(int)
         if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or \
                 perc["MAISON"] != 15:
-            raise check50.Failure("Percentage of different houses are incorrect")
+            raise check50.Failure("Percentage of different houses are "
+                                  "incorrect")
 
 
 
