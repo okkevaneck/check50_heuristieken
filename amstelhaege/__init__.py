@@ -108,6 +108,8 @@ def check_file():
                 perc["MAISON"] != 15:
             raise check50.Failure("Percentage of different houses are incorrect")
 
+        # Check if the coördinates are in correct order for making houses.
+
 
 
 @check50.check(check_file)

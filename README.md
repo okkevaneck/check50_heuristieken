@@ -1,6 +1,7 @@
 # Check50 for Heuristics
 **Author:** Okke van Eck  
-**Check50 Docs:** https://cs50.readthedocs.io/check50/
+**Check50 Docs:** https://cs50.readthedocs.io/check50/  
+**Note:** All `test.py` files are ignored!  
 
 #### Setup check environment.
 You must have python3 installed and a possibility for creating a virtual
@@ -52,4 +53,5 @@ below, devided by case.
 
 ##### Amstelhaege
 - Remove spaces behand comma's in output.csv
+- Ask for all four corners in order instead of two
 - Add a footer to output.csv with the score: `score,<integer>`
