@@ -11,6 +11,7 @@ does so by doing the following tests in this order:
 """
 
 import check50
+from shapely.geometry import Polygon
 import pandas as pd
 import numpy as np
 import os
@@ -34,11 +35,16 @@ def check_file():
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
 
+        # Define common used variables.
+        types = ["WATER", "EENGEZINSWONING", "BUNGALOW", "MAISON"]
+        corner_labels = [f"corner_{x}" for x in range(1, 5)]
+
         # Check header for correct format.
-        if list(df) != ["structure", "bottom_left_xy", "top_right_xy", "type"]:
+        if list(df) != ["structure", "corner_1", "corner_2", "corner_3",
+                        "corner_4", "type"]:
             raise check50.Failure("Expected header of the csv to be "
-                                  "'structure,bottom_left_xy,top_right_xy,"
-                                  "type'")
+                                  "'structure,corner_1,corner_2,corner_3,"
+                                  "corner_4,type'")
 
         # Check footer for correct format.
         if len(df) < 1 or df['structure'].iloc[-1] != "score":
@@ -46,7 +52,7 @@ def check_file():
                                   "'score,<integer>'")
 
         try:
-            int(df['bottom_left_xy'].iloc[-1])
+            int(df['corner_1'].iloc[-1])
         except ValueError:
             raise check50.Failure("Expected last row of the csv to be "
                                   "'score,<integer>'")
@@ -55,28 +61,8 @@ def check_file():
         if len(df) == 1:
             return
 
-        # Check if all values in the coordinate columns are of correct datatype
-        # and value, except for the last row.
-        pattern = "([0-9]|[1-9][0-9]*),([0-9]|[1-9][0-9]*)"
-
-        for pos in ["bottom_left_xy", "top_right_xy"]:
-            coord_bools = list(map(lambda x: bool(re.match(pattern, x)),
-                                   df["bottom_left_xy"][:-1]))
-            if False in coord_bools:
-                idxs = np.where(coord_bools == False)[0]
-                error = "Invalid position(s) found for the objects. Expected" \
-                        " coordinates with format '<integer>,<integer>', but" \
-                        " found:\n"
-
-                for idx in idxs:
-                    error = "".join([error, f"\t'{df[pos][idx]}' \ton row "
-                                            f"{idx} in '{pos}' column.\n"])
-
-                raise check50.Failure(error)
-
         # Check if all types are correct.
-        type_bools = df["type"][:-1].isin(["WATER", "EENGEZINSWONING",
-                                           "BUNGALOW", "MAISON"]).values
+        type_bools = df["type"][:-1].isin(types).values
         if False in type_bools:
             idxs = np.where(type_bools == False)[0]
             error = "Invalid TYPE(s) used for objects. Expected 'WATER', " \
@@ -102,14 +88,53 @@ def check_file():
             raise check50.Failure(error)
 
         # Check if the percentage of different houses are correct.
-        perc = round(df['type'][:-1][df.type != "WATER"]
-                     .value_counts(normalize=True) * 100).astype(int)
-        if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or \
-                perc["MAISON"] != 15:
-            raise check50.Failure("Percentage of different houses are incorrect")
+        # perc = round(df['type'][:-1][df.type != "WATER"]
+        #              .value_counts(normalize=True) * 100).astype(int)
+        # if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or \
+        #         perc["MAISON"] != 15:
+        #     raise check50.Failure("Percentage of different houses are incorrect")
 
-        # Check if the coördinates are in correct order for making houses.
+        # Check if all values in the coordinate columns are of correct datatype
+        # and value, except for the last row.
+        pattern = r"\(([0-9]|[1-9][0-9]*),([0-9]|[1-9][0-9]*)\)"
 
+        for pos in corner_labels:
+            coord_bools = list(map(lambda x: bool(re.match(pattern, x)),
+                                   df[pos][:-1]))
+            if False in coord_bools:
+                idxs = np.where(coord_bools == False)[0]
+                error = "Invalid position(s) found for the objects. Expected" \
+                        " coordinates with format '<integer>,<integer>', but" \
+                        " found:\n"
+
+                for idx in idxs:
+                    error = "".join([error, f"\t'{df[pos][idx]}' \ton row "
+                                            f"{idx} in '{pos}' column.\n"])
+
+                raise check50.Failure(error)
+
+        # Check if the coordinates are in correct order for making rectangular
+        # polygons.
+        inv_structures = []
+        correct_areas = [64.0, 0, 0, 0]
+
+        for type, area in zip(types, correct_areas):
+            for row in df[:-1].loc[df['type'] == type].values:
+                p = Polygon(tuple(map(float, c[1:-1].split(",")))
+                            for c in row[1:-1])
+
+                if round(p.area) != area:
+                    inv_structures.append(row[0])
+
+        if inv_structures:
+            error = "Invalid coordinates found. Expected to make coordinates" \
+                    " to form a rectangle, but found:\n"
+            for structure in inv_structures:
+                idx = df[df['structure'] == structure].index.tolist()[0]
+                coords = list(df.iloc[idx][corner_labels])
+                error = "".join([error, f"\t{coords}    \t\ton row {idx}\n"])
+
+            raise check50.Failure(error)
 
 
 @check50.check(check_file)

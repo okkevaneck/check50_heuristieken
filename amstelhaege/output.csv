@@ -1,6 +1,5 @@
-structure,bottom_left_xy,top_right_xy,type
-water_1,"0,0","32,180",WATER
-eengezinswoning_1,"80,30","88,38",EENGEZINSWONING
-bungalow_1,"33,50","44,57",BUNGALOW
-maison_1,"148,170","160,180",MAISON
+structure,corner_1,corner_2,corner_3,corner_4,type
+eengezinswoning_1,"(80,30)","(80,38)","(88,38)","(88,30)",EENGEZINSWONING
+eengezinswoning_2,"(80,30)","(88,38)","(80,38)","(88,30)",EENGEZINSWONING
+eengezinswoning_3,"(120,30)","(120,38)","(128,38)","(128,30)",EENGEZINSWONING
 score,45000
