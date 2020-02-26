@@ -88,12 +88,12 @@ def check_file():
             raise check50.Failure(error)
 
         # Check if the percentage of different houses are correct.
-        perc = round(df['type'][:-1][df.type != "WATER"]
-                     .value_counts(normalize=True) * 100).astype(int)
-        if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or \
-                perc["MAISON"] != 15:
-            raise check50.Failure("Percentage of different houses are "
-                                  "incorrect")
+        # perc = round(df['type'][:-1][df.type != "WATER"]
+        #              .value_counts(normalize=True) * 100).astype(int)
+        # if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or \
+        #         perc["MAISON"] != 15:
+        #     raise check50.Failure("Percentage of different houses are "
+        #                           "incorrect")
 
         # Check if all values in the coordinate columns are of correct datatype
         # and value, except for the last row.
@@ -117,14 +117,14 @@ def check_file():
         # Check if the coordinates are in correct order for making rectangular
         # polygons.
         inv_structures = []
-        correct_areas = [64.0, 0, 0, 0]
+        correct_areas = [0.0, 64.0, 77.0, 120.0]
 
         for type, area in zip(types, correct_areas):
             for row in df[:-1].loc[df['type'] == type].values:
                 p = Polygon(tuple(map(float, c[1:-1].split(",")))
                             for c in row[1:-1])
 
-                if round(p.area) != area:
+                if type != "WATER" and round(p.area) != area:
                     inv_structures.append(row[0])
 
         if inv_structures:
