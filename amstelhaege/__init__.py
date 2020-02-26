@@ -88,11 +88,12 @@ def check_file():
             raise check50.Failure(error)
 
         # Check if the percentage of different houses are correct.
-        # perc = round(df['type'][:-1][df.type != "WATER"]
-        #              .value_counts(normalize=True) * 100).astype(int)
-        # if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or \
-        #         perc["MAISON"] != 15:
-        #     raise check50.Failure("Percentage of different houses are incorrect")
+        perc = round(df['type'][:-1][df.type != "WATER"]
+                     .value_counts(normalize=True) * 100).astype(int)
+        if perc["EENGEZINSWONING"] != 60 or perc["BUNGALOW"] != 25 or \
+                perc["MAISON"] != 15:
+            raise check50.Failure("Percentage of different houses are "
+                                  "incorrect")
 
         # Check if all values in the coordinate columns are of correct datatype
         # and value, except for the last row.
