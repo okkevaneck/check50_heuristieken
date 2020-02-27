@@ -152,26 +152,27 @@ def check_placement():
         # Create Polygons from the coordinates and check if they overlap.
         ps_water = {}
         ps_houses = {}
-        intersects = []
+        overlap = []
 
         for row in df[:-1].values:
-            p = Polygon(tuple(map(float, c[1:-1].split(","))) for c in row[1:-1])
+            p = Polygon(tuple(map(float, c[1:-1].split(",")))
+                        for c in row[1:-1])
 
-            if p.intersects(MultiPolygon(list(ps_water.values()))):
-                intersects.append([row[0], "Water"])
+            if p.within(MultiPolygon(list(ps_water.values()))):
+                overlap.append([row[0], "Water"])
 
-            if p.intersects(MultiPolygon(list(ps_houses.values()))):
-                intersects.append([row[0], "House"])
+            if p.within(MultiPolygon(list(ps_houses.values()))):
+                overlap.append([row[0], "House"])
 
             if row[-1] == "WATER":
                 ps_water[row[0]] = p
             else:
                 ps_houses[row[0]] = p
 
-        if intersects:
+        if overlap:
             error = "Structures may not overlap, but found:\n"
 
-            for s in intersects:
+            for s in overlap:
                 idx = df[df["structure"] == s[0]].index.tolist()[0]
                 error = "".join([error, f"\t{s[1]} was overlapped by '{s[0]}' "
                                         f"\ton row {idx}\n"])
@@ -185,7 +186,8 @@ def check_placement():
 
         if area > 28800.0:
             raise check50.Failure(f"Dimensions of the map are not 160x180: "
-                                  f"area of '{area}' exceeds 28800.")
+                                  f"area of '{area}' exceeds max area of "
+                                  f"28800.")
 
         free_space = {}
         house_polys = list(ps_houses.values())
