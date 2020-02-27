@@ -185,7 +185,7 @@ def check_placement():
 
         if area > 28800.0:
             raise check50.Failure(f"Dimensions of the map are not 160x180: "
-                                  f"'{area}' exceeds 28800.")
+                                  f"area of '{area}' exceeds 28800.")
 
         free_space = {}
         house_polys = list(ps_houses.values())
