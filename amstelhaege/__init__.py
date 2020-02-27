@@ -117,23 +117,27 @@ def check_file():
         # Check if the coordinates are in correct order for making rectangular
         # polygons.
         inv_structures = []
-        correct_areas = [0.0, 64.0, 77.0, 120.0]
+        correct_areas = {"WATER": 0.0, "EENGEZINSWONING": 64.0,
+                         "BUNGALOW": 77.0, "MAISON": 120.0}
 
-        for type, area in zip(types, correct_areas):
-            for row in df[:-1].loc[df['type'] == type].values:
+        for s_type, area in zip(types, correct_areas.values()):
+            for row in df[:-1].loc[df['type'] == s_type].values:
                 p = Polygon(tuple(map(float, c[1:-1].split(",")))
                             for c in row[1:-1])
 
-                if type != "WATER" and round(p.area) != area:
-                    inv_structures.append(row[0])
+                if s_type != "WATER" and round(p.area) != area:
+                    inv_structures.append([row[-1], row[0], p.area])
 
         if inv_structures:
-            error = "Invalid coordinates found. Expected to make coordinates" \
-                    " to form a rectangle, but found:\n"
-            for structure in inv_structures:
-                idx = df[df['structure'] == structure].index.tolist()[0]
-                coords = list(df.iloc[idx][corner_labels])
-                error = "".join([error, f"\t{coords}    \t\ton row {idx}\n"])
+            inv_structures.sort()
+            error = "Invalid coordinates found, expected to form" \
+                    " a rectangle with correct area, but found area of:\n"
+
+            for s in inv_structures:
+                idx = df[df['structure'] == s[1]].index.tolist()[0]
+                error = "".join([error, f"\t{s[2]} instead of "
+                                        f"{correct_areas[s[0]]}\t for '{s[1]}'"
+                                        f" on row {idx}\n"])
 
             raise check50.Failure(error)
 
