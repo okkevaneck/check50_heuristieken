@@ -99,16 +99,17 @@ def check_file():
 
         # Check if all values in the coordinate columns are of correct datatype
         # and value, except for the last row.
-        pattern = r"\(([0-9]|[1-9][0-9]*),([0-9]|[1-9][0-9]*)\)"
+        pattern = r"([0-9]|[1-9][0-9]*),([0-9]|[1-9][0-9]*)"
 
         for pos in CORNER_LABELS:
-            coord_bools = list(map(lambda x: bool(re.match(pattern, x)),
-                                   df[pos][:-1]))
+            coord_bools = np.array(list(map(lambda x:
+                                            bool(re.match(pattern, x)),
+                                            df[pos][:-1])))
+
             if False in coord_bools:
                 idxs = np.where(coord_bools == False)[0]
-                error = "Invalid position(s) found for the objects. Expected" \
-                        " coordinates with format '<integer>,<integer>', but" \
-                        " found:\n"
+                error = "Invalid coordinates found. Expected coordinates " \
+                        "with format '<integer>,<integer>', but found:\n"
 
                 for idx in idxs:
                     error = "".join([error, f"\t'{df[pos][idx]}' \ton row "
@@ -124,8 +125,7 @@ def check_file():
 
         for s_type, area in zip(TYPES, correct_areas.values()):
             for row in df.loc[df['type'] == s_type].values:
-                p = Polygon(tuple(map(float, c[1:-1].split(",")))
-                            for c in row[1:-1])
+                p = Polygon(tuple(map(float, c.split(","))) for c in row[1:-1])
 
                 if s_type != "WATER" and round(p.area) != area:
                     inv_structures.append([row[-1], row[0], p.area])
@@ -156,8 +156,7 @@ def check_placement():
         overlap = []
 
         for row in df[:-1].values:
-            p = Polygon(tuple(map(float, c[1:-1].split(",")))
-                        for c in row[1:-1])
+            p = Polygon(tuple(map(float, c.split(","))) for c in row[1:-1])
 
             if p.within(MultiPolygon(list(ps_water.values()))):
                 overlap.append([row[0], "Water"])
@@ -229,8 +228,7 @@ def check_score():
         ps_houses = {}
 
         for row in df[:-1][df.type != "WATER"].values:
-            p = Polygon(tuple(map(float, c[1:-1].split(",")))
-                        for c in row[1:-1])
+            p = Polygon(tuple(map(float, c.split(","))) for c in row[1:-1])
             ps_houses[row[0]] = p
 
         # Compute the free meters per house.
