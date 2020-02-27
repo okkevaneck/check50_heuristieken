@@ -54,5 +54,5 @@ below, devided by case.
 ##### AmstelHaege
 - Remove spaces behind comma's in output.csv
 - Ask for all four corners in order instead of two
-    - Rename header to structure,corner_1,corner_2,corner_3,corner_4,type
+    - Rename header to `structure,corner_1,corner_2,corner_3,corner_4,type`
 - Add a footer to output.csv with the networth: `networth,<integer>`
