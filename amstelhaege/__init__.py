@@ -14,6 +14,7 @@ import check50
 from shapely.geometry import Polygon, MultiPolygon
 import pandas as pd
 import numpy as np
+import math
 import os
 import re
 
@@ -48,15 +49,15 @@ def check_file():
                                   "corner_4,type'")
 
         # Check footer for correct format.
-        if len(df) < 1 or df["structure"].iloc[-1] != "score":
+        if len(df) < 1 or df["structure"].iloc[-1] != "networth":
             raise check50.Failure("Expected last row of the csv to be "
-                                  "'score,<integer>'")
+                                  "'networth,<integer>'")
 
         try:
             int(df['corner_1'].iloc[-1])
         except ValueError:
             raise check50.Failure("Expected last row of the csv to be "
-                                  "'score,<integer>'")
+                                  "'networth,<integer>'")
 
         # Stop checking if no objects are in the output file.
         if len(df) == 1:
@@ -122,7 +123,7 @@ def check_file():
                          "BUNGALOW": 77.0, "MAISON": 120.0}
 
         for s_type, area in zip(TYPES, correct_areas.values()):
-            for row in df[:-1].loc[df['type'] == s_type].values:
+            for row in df.loc[df['type'] == s_type].values:
                 p = Polygon(tuple(map(float, c[1:-1].split(",")))
                             for c in row[1:-1])
 
@@ -220,5 +221,46 @@ def check_placement():
 
 @check50.check(check_placement)
 def check_score():
-    """Check if solution produces score specified in output.csv."""
-    pass
+    """Check if solution produces networth specified in output.csv."""
+    with open("output.csv") as csvfile:
+        df = pd.read_csv(csvfile)
+
+        # Create a Polygon for each house.
+        ps_houses = {}
+
+        for row in df[:-1][df.type != "WATER"].values:
+            p = Polygon(tuple(map(float, c[1:-1].split(",")))
+                        for c in row[1:-1])
+            ps_houses[row[0]] = p
+
+        # Compute the free meters per house.
+        free_space = {}
+        house_polys = list(ps_houses.values())
+
+        for s, p in ps_houses.items():
+            other_houses = list(house_polys)
+            other_houses.remove(p)
+            free_space[s] = p.distance(MultiPolygon(other_houses))
+
+        # Fetch structures per type and compute networths to make up the total
+        # networth.
+        base_worths = [2850, 3990, 6100]
+        perc_incr = [3, 4, 6]
+        networths = [0, 0, 0]
+
+        for i, type in enumerate(TYPES[1:]):
+            structures = df[df.type == type]["structure"].values
+            networths[i] += base_worths[i] * 100 * len(structures)
+
+            for s in structures:
+                networths[i] += perc_incr[i] * int(math.floor(free_space[s])) \
+                                * base_worths[i]
+
+        if sum(networths) != int(df["corner_1"].iloc[-1]):
+            raise check50.Failure("Networh in output.csv is not equal to the "
+                                  "computed networth from the output.\n    "
+                                  f"Computed networth of {sum(networths):,} "
+                                  "is made up of:\n"
+                                  f"\t{networths[0]:,} \tfrom '{TYPES[1]}'\n"
+                                  f"\t{networths[1]:,} \tfrom '{TYPES[2]}'\n"
+                                  f"\t{networths[2]:,} \tfrom '{TYPES[3]}'\n")
