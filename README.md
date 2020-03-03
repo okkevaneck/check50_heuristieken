@@ -48,11 +48,16 @@ There are some changes required for the cases. The changes are de described
 below, devided by case.
 
 ##### Protein Powder
-- Remove spaces behind comma's in output.csv
+- Remove spaces behind comma's in `example_output.csv`
 - Add a footer to output.csv with the score: `score,<integer>`
 
 ##### AmstelHaege
-- Remove spaces behind comma's in output.csv
+- Remove spaces behind comma's in `example_output.csv`
 - Ask for all four corners in order instead of two
     - Rename header to `structure,corner_1,corner_2,corner_3,corner_4,type`
 - Add a footer to output.csv with the networth: `networth,<integer>`
+
+##### RailNL
+- Change `ConnectiesHolland.csv` distances into floats.
+- Remove spaces behind comma's in `example_output.csv`
+- Change filenames and values to English.

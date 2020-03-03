@@ -33,11 +33,11 @@ def exists():
 
 @check50.check(exists)
 def check_file():
-    """Check if the structure and values of output.csv is correct."""
+    """Check if the structure and values of output.csv are correct."""
     # Check if output.csv has content.
     if os.stat("output.csv").st_size == 0:
         raise check50.Failure("Output.csv may not be empty. Provide at least "
-                              "an header row and a row with a score.")
+                              "an header row and a row with a networth.")
 
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
