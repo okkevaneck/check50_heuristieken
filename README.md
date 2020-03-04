@@ -45,7 +45,8 @@ You can run your local version of the checks by running `check50` with the
 
 ### Required case changes
 There are some changes required for the cases. The changes are de described 
-below, devided by case.
+below, devided by case. For each case it will be necessary to write an 
+explanation on how to use the check50.
 
 ##### Protein Powder
 - Remove spaces behind comma's in `example_output.csv`
@@ -58,6 +59,17 @@ below, devided by case.
 - Add a footer to output.csv with the networth: `networth,<integer>`
 
 ##### RailNL
-- Change `ConnectiesHolland.csv` distances into floats.
-- Remove spaces behind comma's in `example_output.csv`
-- Change filenames and values to English.
+- Edit `Noord-Holland` in part one into `Noord- en Zuid-Holland`
+- Change `ConnectiesHolland.csv` distances into floats
+- Make the following changes to `example_output.csv`:
+    - Remove spaces behind comma's
+    - Change header to `train,stations,problem`
+    - Add footer with `score,<integer>,<problem>` where problem is either `NL`
+        or `NZH`, representing the corresponding problem
+    - Change `Amsterdam Amster` into `Amsterdam Sloterdijk`
+    - Change `Goude` into `Gouda`
+- Change filenames to English in every file
+- Create `StationsHolland.csv` file in the same way as `StatinosNational.csv`
+- Add header `station,x,y` to `StationsNational.csv` and `StationsHolland.csv` 
+- Add header `station1,station2,distance` to `ConnectionsHolland.csv` and 
+    `ConnectionsNational.csv`

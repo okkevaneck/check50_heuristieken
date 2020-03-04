@@ -1,5 +1,5 @@
-train,stations
+train,stations,problem
 train_1,"[Beverwijk, Castricum, Alkmaar, Hoorn, Zaandam]"
-train_2,"[Amsterdam Amster, Amsterdam Centraal, Amsterdam Amstel, Amsterdam Zuid, Schiphol Airport]"
-train_3,"[Rotterdam Alexander, Goude, Alphen a/d Rijn, Leiden Centraal]"
-score,4000
+train_2,"[Amsterdam Sloterdijk, Amsterdam Centraal, Amsterdam Amstel, Amsterdam Zuid, Schiphol Airport]"
+train_3,"[Rotterdam Alexander, Gouda, Alphen a/d Rijn, Leiden Centraal]"
+score,4000,NZH
