@@ -73,3 +73,4 @@ explanation on how to use the check50.
 - Add header `station,x,y` to `StationsNational.csv` and `StationsHolland.csv` 
 - Add header `station1,station2,distance` to `ConnectionsHolland.csv` and 
     `ConnectionsNational.csv`
+- Make ints from the floats in `ConnectionsNational.csv` or vice versa in `ConnectionsHolland.csv`

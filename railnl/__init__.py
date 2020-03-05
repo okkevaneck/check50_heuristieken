@@ -99,7 +99,7 @@ def check_file():
 
                     for idx in idxs:
                         error = "".join([error, f"\t'{stations[idx]}' \ton row "
-                                                f"{idx}.\n"])
+                                                f"{row}.\n"])
 
             if found_error:
                 raise check50.Failure(error)
@@ -109,15 +109,47 @@ def check_file():
 def check_tracks():
     """Check if the solution is valid."""
 
-    with open("output.csv") as csvfile,\
-         open(CONNECTIONS_CSV) as connectionsfile:
+    with open("output.csv") as csvfile, \
+            open(CONNECTIONS_CSV) as connectionsfile:
         df = pd.read_csv(csvfile)
         connections = pd.read_csv(connectionsfile)
 
         # Check if the order of stations are valid.
-        # TODO: Implement
+        tracks = df["stations"][:-1].map(lambda x: x[1:-1].split(", ")).values
+        tracks = [[f"{t[i]}, {t[i+1]}" for i, _ in enumerate(t[:-1])]
+                  for t in tracks]
+        valid_con1 = connections["station1"] + ", " + connections["station2"]
+        valid_con2 = connections["station2"] + ", " + connections["station1"]
+
+        error = "Found the following illegal connections:\n"
+        found_error = False
+
+        for row, track in enumerate(tracks):
+            valid_bools1 = np.isin(track, valid_con1)
+            valid_bools2 = np.isin(track, valid_con2)
+
+            if (False, False) in zip(valid_bools1, valid_bools2):
+                idxs = np.where((valid_bools1 == False) &
+                                (valid_bools2 == False))[0]
+                found_error = True
+
+                for idx in idxs:
+                    error = "".join([error, f"\t'{track[idx]}' \ton row "
+                                            f"{row}.\n"])
+
+        if found_error:
+            raise check50.Failure(error)
 
         # Check if the time limit has not been exceeded.
-        # TODO: Implement
+        tracks = df["stations"][:-1].map(lambda x: x[1:-1].split(", ")).values
+        tracks1 = [[f"{t[i]}, {t[i + 1]}" for i, _ in enumerate(t[:-1])]
+                   for t in tracks]
+        tracks2 = [[f"{t[i + 1]}, {t[i]}" for i, _ in enumerate(t[:-1])]
+                   for t in tracks]
+        # TODO: Get sum of time from the tracks
 
-        #
+
+@check50.check(check_tracks)
+def check_score():
+    """Check if solution produces networth specified in output.csv."""
+    pass
