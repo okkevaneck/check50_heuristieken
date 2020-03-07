@@ -28,8 +28,6 @@ def exists():
 @check50.check(exists)
 def check_file():
     """Check if the structure and values of output.csv are correct."""
-    global MAX_TIME
-
     # Check if output.csv has content.
     if os.stat("output.csv").st_size == 0:
         raise check50.Failure("Output.csv may not be empty. Provide at least "
@@ -67,7 +65,7 @@ def check_file():
 
             for idx in idxs:
                 error = "".join([error, f"\t'{df['train'][idx]}' \ton row "
-                                        f"{idx}.\n"])
+                                        f"{idx + 1}.\n"])
 
             raise check50.Failure(error)
 
@@ -89,7 +87,7 @@ def check_file():
 
                     for idx in idxs:
                         error = "".join([error, f"\t'{stations[idx]}' \ton row "
-                                                f"{row}.\n"])
+                                                f"{row + 1}.\n"])
 
             if found_error:
                 raise check50.Failure(error)
@@ -98,6 +96,7 @@ def check_file():
 @check50.check(check_file)
 def check_tracks():
     """Check if the solution is valid."""
+    # global MAX_TIME
 
     with open("output.csv") as csvfile, \
             open("data/connections.csv") as connectionsfile:
@@ -106,38 +105,53 @@ def check_tracks():
 
         # Check if the order of stations are valid.
         tracks = df["stations"][:-1].map(lambda x: x[1:-1].split(", ")).values
-        tracks = [[f"{t[i]}, {t[i+1]}" for i, _ in enumerate(t[:-1])]
-                  for t in tracks]
-        valid_con1 = connections["station1"] + ", " + connections["station2"]
-        valid_con2 = connections["station2"] + ", " + connections["station1"]
+        valid_cons = connections.iloc[:,:-1].values.tolist()
+        output_cons = []
+        errors = []
 
-        error = "Found the following illegal connections:\n"
-        found_error = False
+        for i, track in enumerate(tracks):
+            output_cons.append([])
 
-        for row, track in enumerate(tracks):
-            valid_bools1 = np.isin(track, valid_con1)
-            valid_bools2 = np.isin(track, valid_con2)
+            for j, t in enumerate(track[:-1]):
+                if [t, track[j + 1]] in valid_cons:
+                    output_cons[i].append([t, track[j + 1]])
+                elif [track[j + 1], t] in valid_cons:
+                    output_cons[i].append([track[j + 1], t])
+                else:
+                    errors.append([i, f"{t}, {track[j + 1]}"])
 
-            if (False, False) in zip(valid_bools1, valid_bools2):
-                idxs = np.where((valid_bools1 == False) &
-                                (valid_bools2 == False))[0]
-                found_error = True
+        if errors:
+            error = "Found the following illegal connections:\n"
 
-                for idx in idxs:
-                    error = "".join([error, f"\t'{track[idx]}' \ton row "
-                                            f"{row}.\n"])
+            for row, stations in errors:
+                error = "".join([error, f"\t'{stations}'    \ton row "
+                                        f"{row + 1}.\n"])
 
-        if found_error:
             raise check50.Failure(error)
 
         # Check if the time limit has not been exceeded.
-        tracks = df["stations"][:-1].map(lambda x: x[1:-1].split(", ")).values
-        tracks1 = [[f"{t[i]}, {t[i + 1]}" for i, _ in enumerate(t[:-1])]
-                   for t in tracks]
-        tracks2 = [[f"{t[i + 1]}, {t[i]}" for i, _ in enumerate(t[:-1])]
-                   for t in tracks]
-        # TODO: Get sum of time from the tracks
+        errors = []
 
+        for row, track in enumerate(output_cons):
+            time = 0
+
+            for con in track:
+                time += connections[(connections["station1"].isin([con[0]])) &
+                                    (connections["station2"].isin([con[1]]))] \
+                                   ["distance"].values
+
+            if time > MAX_TIME:
+                errors.append([row, time[0]])
+
+        if errors:
+            error = f"Found tracks that exceed the maximum time of " \
+                    f"{MAX_TIME} minutes on:\n"
+
+            for row, time in errors:
+                error = "".join([error, f"\tRow {row + 1} with a time of "
+                                        f"{time} minutes\n"])
+
+            raise check50.Failure(error)
 
 @check50.check(check_tracks)
 def check_score():
