@@ -4,8 +4,8 @@ This file uses check50 to check the output of an AmstelHaege solution. It
 does so by doing the following tests in this order:
     - Check if output.csv exits
     - Check if the file has valid values and is structured correctly
-    - Check if the structures are placed without violating a constraint.
-    - Check if the total networth is computed correctly.
+    - Check if the structures are placed without violating a constraint
+    - Check if the total networth is computed correctly
 
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com

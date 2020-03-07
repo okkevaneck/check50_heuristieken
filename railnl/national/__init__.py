@@ -3,7 +3,9 @@
 This file uses check50 to check the output of an RailNL solution. It
 does so by doing the following tests in this order:
     - Check if output.csv exits
-    - TODO: Add more tests!
+    - Check if the file has valid values and is structured correctly
+    - Check if the created tracks do not violate constraints
+    - Check if the total score is computed correctly
 
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com
