@@ -227,7 +227,9 @@ def check_score():
             raise check50.Failure("Score in output.csv is not equal to the "
                                   "computed score from the output.\n    "
                                   "Computed score is calculated as:\n"
+                                  f"\tVariables:\n\t\tp: {perc_con_used}\n\t\t"
+                                  f"T: {len(df[:-1])}\n\t\tMin: {tot_time}\n\n"
                                   f"\tK = {perc_con_used} * 10,000 - "
                                   f"({len(df[:-1])} * 100 + {tot_time})\n"
-                                  f"\tK = {score:,}\n"
+                                  f"\t  = {score:,}\n"
                                   f"\tYour score: {user_score:,}")
