@@ -13,6 +13,7 @@ import check50
 import pandas as pd
 import numpy as np
 import os
+import re
 
 # Global to specify the maximum time in minutes per track. This global is
 # changed in the holland sub-folder according to the problem.
@@ -34,7 +35,7 @@ def check_file():
                               "an header row and a row with a score.")
 
     with open("output.csv") as csvfile:
-        df = pd.read_csv(csvfile)
+        df = pd.read_csv(open("output.csv"), dtype=str, keep_default_na=False)
 
         # Check header for correct format.
         if list(df) != ["train", "stations"]:
@@ -69,8 +70,26 @@ def check_file():
 
             raise check50.Failure(error)
 
-        # Check if list  of stations is formatted correctly and the station
-        # exists in the specified station csv file.
+        # Check if the stations are correctly formatted.
+        pattern = r"^\[.*\]+$"
+        stations_bools = np.array(list(map(lambda x:
+                                           bool(re.match(pattern, x)),
+                                           df["stations"][:-1])))
+
+        if False in stations_bools:
+            idxs = np.where(stations_bools == False)[0]
+            error = "Invalid formated list of stations found.\n    " \
+                    "Expected stations with format '[<station1>, <station2>, " \
+                    "..]' but found:\n"
+
+            for idx in idxs:
+                error = "".join([error, f"\t'{df['stations'][idx]}' \ton "
+                                        f"row {idx + 1} \n"])
+
+            raise check50.Failure(error)
+
+
+        # Check if all stations in output.csv are specified in stations.csv.
         with open("data/stations.csv") as stationsfile:
             existing_stations = pd.read_csv(stationsfile)["station"]
             loaded_stations = df["stations"][:-1].map(lambda x: x[1:-1]
