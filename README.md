@@ -57,6 +57,8 @@ explanation on how to use the check50.
 - Ask for all four corners in order instead of two
     - Rename header to `structure,corner_1,corner_2,corner_3,corner_4,type`
 - Add a footer to output.csv with the networth: `networth,<integer>`
+- Change the project info to only except a map dimension of 180x160 where 180 is the width.
+- Change the given neighbourhood files and `example_output.csv` to have the 180x160 dimension instead of 160x180.
 
 ##### RailNL
 - Edit `Noord-Holland` in part one into `Noord- en Zuid-Holland`

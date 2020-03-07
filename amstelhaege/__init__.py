@@ -100,7 +100,7 @@ def check_file():
 
         # Check if all values in the coordinate columns are of correct datatype
         # and value, except for the last row.
-        pattern = r"([0-9]|[1-9][0-9]*),([0-9]|[1-9][0-9]*)"
+        pattern = r"^(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)+$"
 
         for pos in CORNER_LABELS:
             coord_bools = np.array(list(map(lambda x:
@@ -110,7 +110,7 @@ def check_file():
             if False in coord_bools:
                 idxs = np.where(coord_bools == False)[0]
                 error = "Invalid coordinates found. Expected coordinates " \
-                        "with format '<integer>,<integer>', but found:\n"
+                        "with format '<int|float>,<int|float>', but found:\n"
 
                 for idx in idxs:
                     error = "".join([error, f"\t'{df[pos][idx]}' \ton row "
@@ -176,19 +176,21 @@ def check_placement():
             for s in overlap:
                 idx = df[df["structure"] == s[0]].index.tolist()[0]
                 error = "".join([error, f"\t{s[1]} was overlapped by '{s[0]}' "
-                                        f"\ton row {idx}\n"])
+                                        f"   \ton row {idx+1}\n"])
 
             raise check50.Failure(error)
 
         # Check if the area of the total map is 160x180.
         polys = list(ps_water.values())
         polys.extend(list(ps_houses.values()))
-        area = MultiPolygon(polys).area
+        bounds = MultiPolygon(polys).bounds
+        x_dim = bounds[2] - bounds[0]
+        y_dim = bounds[3] - bounds[1]
 
-        if area > 28800.0:
-            raise check50.Failure(f"Dimensions of the map are not 160x180: "
-                                  f"area of '{area}' exceeds max area of "
-                                  f"28800.")
+        if x_dim > 180.0 or y_dim > 160.0:
+            raise check50.Failure(f"The area has a dimension of "
+                                  f"'{x_dim}x{y_dim}' and thus exceeds "
+                                  f"180x160.")
 
         free_space = {}
         house_polys = list(ps_houses.values())
@@ -256,7 +258,7 @@ def check_score():
                                 * base_worths[i]
 
         if sum(networths) != int(df["corner_1"].iloc[-1]):
-            raise check50.Failure("Networh in output.csv is not equal to the "
+            raise check50.Failure("Networth in output.csv is not equal to the "
                                   "computed networth from the output.\n    "
                                   f"Computed networth of {sum(networths):,} "
                                   "is made up of:\n"
