@@ -12,6 +12,7 @@ and `connections.csv` files stored in the holland problem folder.
 national = __import__("check50").import_checks("../national")
 from national import *
 
-# Globals to specify the maximum time in minutes per track. This global is
-# changed according to this problem and will be used during the tests.
+# Global from the national test to specify the maximum time in minutes per
+# track. This global is changed according to this problem and will be used
+# during the tests.
 national.MAX_TIME = 120

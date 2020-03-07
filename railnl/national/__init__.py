@@ -14,7 +14,7 @@ import pandas as pd
 import numpy as np
 import os
 
-# Globals to specify the maximum time in minutes per track. This global is
+# Global to specify the maximum time in minutes per track. This global is
 # changed in the holland sub-folder according to the problem.
 MAX_TIME = 180
 
