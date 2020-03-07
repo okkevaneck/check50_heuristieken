@@ -68,12 +68,13 @@ def check_file():
         type_bools = df["type"][:-1].isin(TYPES).values
         if False in type_bools:
             idxs = np.where(type_bools == False)[0]
-            error = "Invalid TYPE(s) used for objects. Expected 'WATER', " \
-                    "'EENGEZINSWONING', 'BUNGALOW' or 'MAISON', but found:\n"
+            error = "Invalid TYPE(s) used for objects.\n    Expected " \
+                    "'WATER', 'EENGEZINSWONING', 'BUNGALOW' or 'MAISON', " \
+                    "but found:\n"
 
             for idx in idxs:
                 error = "".join([error, f"\t'{df['type'][idx]}' \ton row "
-                                        f"{idx}\n"])
+                                        f"{idx + 1}\n"])
 
             raise check50.Failure(error)
 
@@ -86,7 +87,7 @@ def check_file():
 
             for idx in idxs:
                 error = "".join([error, f"\t'{df['structure'][idx]}' \ton row "
-                                        f"{idx}.\n"])
+                                        f"{idx + 1}.\n"])
 
             raise check50.Failure(error)
 
@@ -109,12 +110,13 @@ def check_file():
 
             if False in coord_bools:
                 idxs = np.where(coord_bools == False)[0]
-                error = "Invalid coordinates found. Expected coordinates " \
-                        "with format '<int|float>,<int|float>', but found:\n"
+                error = "Invalid coordinates found.\n    Expected " \
+                        "coordinates with format '<int|float>,<int|float>', " \
+                        "but found:\n"
 
                 for idx in idxs:
                     error = "".join([error, f"\t'{df[pos][idx]}' \ton row "
-                                            f"{idx} in '{pos}' column.\n"])
+                                            f"{idx + 1} in '{pos}' column.\n"])
 
                 raise check50.Failure(error)
 
@@ -133,14 +135,14 @@ def check_file():
 
         if inv_structures:
             inv_structures.sort()
-            error = "Invalid coordinates found, expected to form" \
+            error = "Invalid coordinates found.\n    Expected to form" \
                     " a rectangle with correct area, but found area of:\n"
 
             for s in inv_structures:
                 idx = df[df["structure"] == s[1]].index.tolist()[0]
                 error = "".join([error, f"\t{s[2]} instead of "
                                         f"{correct_areas[s[0]]}\t for '{s[1]}'"
-                                        f" on row {idx}\n"])
+                                        f" on row {idx + 1}\n"])
 
             raise check50.Failure(error)
 
@@ -176,7 +178,7 @@ def check_placement():
             for s in overlap:
                 idx = df[df["structure"] == s[0]].index.tolist()[0]
                 error = "".join([error, f"\t{s[1]} was overlapped by '{s[0]}' "
-                                        f"   \ton row {idx+1}\n"])
+                                        f"   \ton row {idx + 1}\n"])
 
             raise check50.Failure(error)
 
@@ -194,14 +196,14 @@ def check_placement():
 
         free_space = {}
         house_polys = list(ps_houses.values())
-        min_extra_meters = [0.0, 2.0, 3.0, 6.0]
+        min_extra_meters = [0, 2, 3, 6]
         invalid_houses = np.array([[0, 0, 0]], ndmin=2)
 
         # Check if the minimal extra meters for houses are correct.
         for s, p in ps_houses.items():
             other_houses = list(house_polys)
             other_houses.remove(p)
-            free_space[s] = p.distance(MultiPolygon(other_houses))
+            free_space[s] = math.floor(p.distance(MultiPolygon(other_houses)))
             s_type = df[df["structure"] == s]["type"].values[0]
             req_space = min_extra_meters[TYPES.index(s_type)]
 
@@ -214,9 +216,10 @@ def check_placement():
             error = "Structures with less than minimal free meters found:\n"
 
             for s, space, req_space in invalid_houses[1:]:
+                idx = df[df["structure"] == s].index.tolist()[0]
                 error = "".join([error, f"\t'{s}' \t has {space} free meters "
-                                        f"instead of the required "
-                                        f"{req_space}\n"])
+                                        f"instead of {req_space} on row "
+                                        f"{idx + 1}\n"])
 
             raise check50.Failure(error)
 
@@ -241,7 +244,7 @@ def check_score():
         for s, p in ps_houses.items():
             other_houses = list(house_polys)
             other_houses.remove(p)
-            free_space[s] = p.distance(MultiPolygon(other_houses))
+            free_space[s] = math.floor(p.distance(MultiPolygon(other_houses)))
 
         # Fetch structures per type and compute networths to make up the total
         # networth.
@@ -254,7 +257,7 @@ def check_score():
             networths[i] += base_worths[i] * 100 * len(structures)
 
             for s in structures:
-                networths[i] += perc_incr[i] * int(math.floor(free_space[s])) \
+                networths[i] += perc_incr[i] * free_space[s] \
                                 * base_worths[i]
 
         if sum(networths) != int(df["corner_1"].iloc[-1]):
