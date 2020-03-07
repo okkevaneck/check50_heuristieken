@@ -1,7 +1,7 @@
 # Check50 for Heuristics
 **Author:** Okke van Eck  
 **Check50 Docs:** https://cs50.readthedocs.io/check50/  
-**Note:** All `test.py` files are ignored!  
+**Note:** All `test.py` files are gitignored!  
 
 #### Setup check environment.
 You must have python3 installed and a possibility for creating a virtual
@@ -38,8 +38,8 @@ You can run the checks on GitHub locally by running the same command with the
 `check50 --local OkkeVanEck/cs50_heuristieken/master/<case>`
 
 ###### Run local code
-You can run your local version of the checks by running `check50` with the 
-`--dev` flag:  
+You can run your local version of a check by running `check50` with the 
+`--dev` flag in the folder where the `.check50.yaml` is located:  
 `check50 --dev .`
 
 
