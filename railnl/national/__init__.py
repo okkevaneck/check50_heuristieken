@@ -15,9 +15,11 @@ import numpy as np
 import os
 import re
 
-# Global to specify the maximum time in minutes per track. This global is
-# changed in the holland sub-folder according to the problem.
+# Global to specify the maximum time in minutes per track and maximum number of
+# tracks. This global is changed in the holland sub-folder according to the
+# problem.
 MAX_TIME = 180
+MAX_TRACKS = 20
 
 
 @check50.check()
@@ -57,8 +59,14 @@ def check_file():
         if len(df) == 1:
             return
 
+        # Check if number of tracks does not exceed maximum.
+        if len(df[:-1]) > MAX_TRACKS:
+            raise check50.Failure(f"Output.csv contains {len(df[:-1])} tracks, "
+                                  f"which exceeds the maximum of {MAX_TRACKS}.")
+
         # Check if all train names are unique.
         dup_bools = np.array(df["train"].duplicated())
+
         if True in dup_bools:
             idxs = np.where(dup_bools == True)[0]
             error = "Expected all train names to be unique, but found " \
@@ -223,8 +231,3 @@ def check_score():
                                   f"({len(df[:-1])} * 100 + {tot_time})\n"
                                   f"\tK = {score:,}\n"
                                   f"\tYour score: {user_score:,}")
-
-
-
-# TODO: Check de hoeveelheid trajescten: 20 voor NL, 7 voor Holland
-

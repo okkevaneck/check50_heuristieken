@@ -16,3 +16,4 @@ from national import *
 # track. This global is changed according to this problem and will be used
 # during the tests.
 national.MAX_TIME = 120
+national.MAX_TRACKS = 7
