@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-This file uses check50 to check the output of an Protein Powder solution. It
+This file uses check50 to check the output of a Protein Powder solution. It
 does so by doing the following tests in this order:
     - Check if output.csv exits
     - Check if the file has valid values and is structured correctly

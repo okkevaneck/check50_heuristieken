@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-This file uses check50 to check the output of an Protein Powder solution. It
+This file uses check50 to check the output of an RailNL solution. It
 does so by doing the following tests in this order:
     - Check if output.csv exits
     - TODO: Add more tests!
@@ -14,24 +14,21 @@ import pandas as pd
 import numpy as np
 import os
 
-# Globals to specify the connections csv and maximum time in minutes, changed
-# according to the specified problem. Default is for the whole Netherlands.
-CONNECTIONS_CSV = "data/ConnectionsNational.csv"
-STATIONS_CSV = "data/StationsNational.csv"
+# Globals to specify the maximum time in minutes per track. This global is
+# changed in the holland sub-folder according to the problem.
 MAX_TIME = 180
 
 
 @check50.check()
 def exists():
-    """Check if all files exists."""
-    check50.include("data")
+    """Check if output.csv exists."""
     check50.exists("output.csv")
 
 
 @check50.check(exists)
 def check_file():
     """Check if the structure and values of output.csv are correct."""
-    global CONNECTIONS_CSV, STATIONS_CSV, MAX_TIME
+    global MAX_TIME
 
     # Check if output.csv has content.
     if os.stat("output.csv").st_size == 0:
@@ -42,27 +39,20 @@ def check_file():
         df = pd.read_csv(csvfile)
 
         # Check header for correct format.
-        if list(df) != ["train", "stations", "problem"]:
+        if list(df) != ["train", "stations"]:
             raise check50.Failure("Expected header of the csv to be "
-                                  "'train,stations,problem'")
+                                  "'train,stations'")
 
         # Check footer for correct format.
-        if len(df) < 1 or df["train"].iloc[-1] != "score" or \
-                df["problem"].iloc[-1] not in ["NL", "NZH"]:
+        if len(df) < 1 or df["train"].iloc[-1] != "score":
             raise check50.Failure("Expected last row of the csv to be "
-                                  "'score,<integer>,<NL | NZH>'")
+                                  "'score,<integer>'")
 
         try:
             int(df['stations'].iloc[-1])
         except ValueError:
             raise check50.Failure("Expected last row of the csv to be "
-                                  "'score,<integer>,<NL | NZH>'")
-
-        # Change globals if output has specified North- and South-Holland.
-        if df["problem"].iloc[-1] == "NZH":
-            CONNECTIONS_CSV = "data/ConnectionsHolland.csv"
-            STATIONS_CSV = "data/StationsHolland.csv"
-            MAX_TIME = 120
+                                  "'score,<integer>'")
 
         # Stop checking if there are no tracks are in the output file.
         if len(df) == 1:
@@ -83,7 +73,7 @@ def check_file():
 
         # Check if list  of stations is formatted correctly and the station
         # exists in the specified station csv file.
-        with open(STATIONS_CSV) as stationsfile:
+        with open("data/stations.csv") as stationsfile:
             existing_stations = pd.read_csv(stationsfile)["station"]
             loaded_stations = df["stations"][:-1].map(lambda x: x[1:-1]
                                                       .split(", ")).values
@@ -110,7 +100,7 @@ def check_tracks():
     """Check if the solution is valid."""
 
     with open("output.csv") as csvfile, \
-            open(CONNECTIONS_CSV) as connectionsfile:
+            open("data/connections.csv") as connectionsfile:
         df = pd.read_csv(csvfile)
         connections = pd.read_csv(connectionsfile)
 
