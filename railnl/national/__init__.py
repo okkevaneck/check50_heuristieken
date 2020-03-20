@@ -57,7 +57,7 @@ def check_file():
             raise check50.Failure("Expected last row of the csv to be "
                                   "'score,<int | float>'")
 
-        # Stop checking if there are no tracks are in the output file.
+        # Stop checking if there are no tracks in the output file.
         if len(df) == 1:
             return
 
@@ -88,7 +88,7 @@ def check_file():
 
         if False in stations_bools:
             idxs = np.where(stations_bools == False)[0]
-            error = "Invalid formated list of stations found.\n    " \
+            error = "Invalid formatted list of stations found.\n    " \
                     "Expected stations with format '[<station1>, <station2>, " \
                     "..]' but found:\n"
 
