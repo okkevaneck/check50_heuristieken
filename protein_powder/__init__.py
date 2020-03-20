@@ -49,7 +49,7 @@ def check_file():
             raise check50.Failure("Expected last row of the csv to be "
                                   "'score,<integer>'")
 
-        # Stop checking if there are no aminos are in the output file.
+        # Stop checking if there are no aminos in the output file.
         if len(df) == 1:
             return
 

@@ -56,6 +56,7 @@ explanation on how to use the check50.
 - Remove spaces behind comma's in `example_output.csv`
 - Ask for all four corners in order instead of two
     - Rename header to `structure,corner_1,corner_2,corner_3,corner_4,type`
+- Also give four corners in the neighbouthood files
 - Add a footer to output.csv with the networth: `networth,<integer>`
 - Change the project info to only except a map dimension of 180x160 where 180 is the width.
 - Change the given neighbourhood files and `example_output.csv` to have the 180x160 dimension instead of 160x180.
@@ -76,3 +77,6 @@ explanation on how to use the check50.
 - Add header `station1,station2,distance` to `ConnectionsHolland.csv` and 
     `ConnectionsNational.csv`
 - Make ints from the floats in `ConnectionsNational.csv` or vice versa in `ConnectionsHolland.csv`
+
+##### Rush Hour
+- Remove spaces behind comma's in `example_output.csv` and in board csv files.
