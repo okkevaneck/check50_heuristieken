@@ -79,4 +79,10 @@ explanation on how to use the check50.
 - Make ints from the floats in `ConnectionsNational.csv` or vice versa in `ConnectionsHolland.csv`
 
 ##### Rush Hour
-- Remove spaces behind comma's in `example_output.csv` and in board csv files.
+- Remove spaces behind comma's in `example_output.csv` and in board csv files
+- Fix 12x12 board by removing the V-car, since it overlaps the B-car
+- Define under the Output section that the last move must be the red car moving to the border.
+
+
+### TODOs in code:
+- Fix row numbers in the errors of Protein Powder, AmstelHaege and RailNL

@@ -10,3 +10,7 @@ the checks will be changed to the one from this problem folder.
 
 checks = __import__("check50").import_checks("../checks")
 from checks import *
+
+# Global for tracking the boards borders. This global is changed according to
+# board size of this problem.
+checks.BOARD_SIZE = 9
