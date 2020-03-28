@@ -84,5 +84,11 @@ explanation on how to use the check50.
 - Define under the Output section that the last move must be the red car moving to the border.
 - Add something about the boards being 1-indexed instead of 0-indexed.
 
-### TODOs in code:
+##### Radio Russia
+- Add the created input files.
+- Add information about the different file extensions (for example .shp can be used for visualisations)
+- Add the constraint that the send types for problem 1 are A till G
+- Make `example_output.csv` and add a section about it
+
+### TODOs in all code:
 - Fix row numbers in the errors of Protein Powder, AmstelHaege and RailNL
