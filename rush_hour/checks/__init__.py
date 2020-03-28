@@ -95,10 +95,13 @@ def check_moves():
         print(board_df)
         print(BOARD_SIZE)
 
-        # Setup board.
+        # Setup tracking dictionaries. Their key,value pairs are:
+        #   - Board -> (pos): car_letter.
+        #   - Car_data -> car_letter: [orientation, [coordinates]]
         board = {}
         car_data = {}
 
+        # Setup board.
         for _, [car, orientation, pos, length] in board_df.iterrows():
             pos = list(map(int, pos.split(",")))
             car_data[car] = [orientation, []]
@@ -112,12 +115,12 @@ def check_moves():
                 else:
                     pos[1] += 1
 
-        # Perform all moves but the last move.
+        # Perform all moves.
         for idx, [car, move] in df.iterrows():
             orientation, pos = car_data[car]
             orientation_idx = ["H", "V"].index(orientation)
 
-            print("\nFor: ", car, "\nOld_pos: ", pos)
+            print("\nFor: ", car)
 
             if move > 0:
                 new_pos = pos[-1][:]
@@ -127,8 +130,8 @@ def check_moves():
             new_pos[orientation_idx] += move
 
             # Check if the new position is outside of the board.
-            if new_pos[0] > BOARD_SIZE + 1 or new_pos[0] < 0 \
-                    or new_pos[1] > BOARD_SIZE + 1 or new_pos[1] < 0:
+            if new_pos[0] > BOARD_SIZE or new_pos[0] < 0 \
+                    or new_pos[1] > BOARD_SIZE or new_pos[1] < 0:
                 raise check50.Failure(f"Car '{car}' moved outside of the board"
                                       f" by performing '{car} {move}' on"
                                       f" row {idx+2}")
@@ -137,6 +140,16 @@ def check_moves():
             path = [[new_pos[0] + i, new_pos[1]] if orientation == "H" else
                     [new_pos[0], new_pos[1] + i]
                     for i in range(0, -move, -move//abs(move))]
+
+            # Sort path so the order is correct for performing the moves.
+            if move > 0:
+                path.sort()
+
+            # print("Orientation:  ", orientation)
+            # print("Positions:    ", pos)
+            # print("New_pos:      ", new_pos)
+            # print("Move:         ", move)
+            # print("PATH:         ", path)
 
             for path_pos in path:
                 if tuple(path_pos) in board:
@@ -151,22 +164,27 @@ def check_moves():
 
             if len(path) < len(pos):
                 if move > 0:
-                    pos = pos[len(pos) - len(path):]
+                    pos = pos[-len(pos) + len(path):]
                     pos.extend(path)
+                    car_data[car][1] = pos
                 elif move < 0:
                     pos = pos[:len(pos) - len(path)]
                     path.extend(pos)
+                    car_data[car][1] = path
             else:
-                print("PATH: ", path)
-                pos = path[-len(pos):][::-1]
+                # Compute new positions by taking the front or end of the path,
+                # depending on the direction of the move.
+                if move > 0:
+                    car_data[car][1] = path[-len(pos):]
+                elif move < 0:
+                    car_data[car][1] = path[:len(pos)]
 
-            for p in pos:
+            for p in car_data[car][1]:
                 board[tuple(p)] = car
 
-            print("Pos: ", pos, "\nNew_pos: ", new_pos,
-                  "\nMove: ", move, "\nPath: ", path)
+            # print("After move:   ", car_data[car][1])
 
-        # Check if the last move exited the red car.
-        if car_data["X"][1][-1] != BOARD_SIZE - 1:
+        # Check if the red car moved to the edge of the board.
+        if car_data["X"][1][-1] != BOARD_SIZE:
             raise check50.Failure("Red car did not end at the edge of the "
                                   "board.")

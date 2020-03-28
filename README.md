@@ -82,7 +82,7 @@ explanation on how to use the check50.
 - Remove spaces behind comma's in `example_output.csv` and in board csv files
 - Fix 12x12 board by removing the V-car, since it overlaps the B-car
 - Define under the Output section that the last move must be the red car moving to the border.
-
+- Add something about the boards being 1-indexed instead of 0-indexed.
 
 ### TODOs in code:
 - Fix row numbers in the errors of Protein Powder, AmstelHaege and RailNL
