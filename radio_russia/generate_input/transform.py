@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     for i, shape in enumerate(shapes):
         for j, other in enumerate(shapes):
-            if shape.touches(other):
+            if i != j and shape.intersects(other):
                 neighbours[i].append(j)
 
     # Write created neighbour list to csv.
