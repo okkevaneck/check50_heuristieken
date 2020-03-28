@@ -4,7 +4,11 @@ This file uses check50 to check the output of a Rush Hour solution. It does so
 by doing the following tests in this order:
     - Check if output.csv exits
     - Check if the file has valid values and is structured correctly
-    - TODO: Add more tests!
+    - Check if all moves are valid and can be performed in order.
+    - Check if the red car is moved towards the edge of the board.
+
+NOTE: This check50 does not compute the score of the solution since it is just
+      counting the number of lines in the output.csv.
 
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com
@@ -62,6 +66,22 @@ def check_file():
 
             raise check50.Failure(error)
 
+        # Check if all car letters are valid.
+        with open("board.csv") as boardfile:
+            board_df = pd.read_csv(boardfile)
+            car_exists_bools = df.car.isin(board_df.car).values
+
+            if False in car_exists_bools:
+                idxs = np.where(car_exists_bools == False)[0]
+                error = "Invalid letter(s) used for a car. The following " \
+                        "letters are not on the board:\n"
+
+                for idx in idxs:
+                    error = "".join([error, f"\t'{df['car'][idx]}' \ton row "
+                                            f"{idx + 2}\n"])
+
+                raise check50.Failure(error)
+
         # Check if all values in the move column are of correct datatype and
         # value.
         if df["move"].dtype != "int":
@@ -81,9 +101,6 @@ def check_file():
 
             raise check50.Failure(error)
 
-        # Check if all car letters are valid.
-        # TODO: Compare car letters from output.csv with car letters from board.csv
-
 
 @check50.check(check_file)
 def check_moves():
@@ -92,8 +109,6 @@ def check_moves():
             open("board.csv") as boardfile:
         df = pd.read_csv(csvfile)
         board_df = pd.read_csv(boardfile)
-        print(board_df)
-        print(BOARD_SIZE)
 
         # Setup tracking dictionaries. Their key,value pairs are:
         #   - Board -> (pos): car_letter.
@@ -134,7 +149,7 @@ def check_moves():
                                       f" by performing '{car} {move}' on"
                                       f" row {idx+2}")
 
-            # Check if all positions between the car and new_pos are free.
+            # Compute the path between the new position and the current ones.
             path = [[new_pos[0] + i, new_pos[1]] if orientation == "H" else
                     [new_pos[0], new_pos[1] + i]
                     for i in range(0, -move, -move//abs(move))]
@@ -143,6 +158,7 @@ def check_moves():
             if move > 0:
                 path.sort()
 
+            # Check if all positions between the car and new_pos are free.
             for path_pos in path:
                 if tuple(path_pos) in board:
                     crash_car = board[tuple(path_pos)]
