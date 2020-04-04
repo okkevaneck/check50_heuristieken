@@ -105,5 +105,17 @@ def check_file():
 @check50.check(check_file)
 def check_configuration():
     """Check if the given configuration is valid."""
-    # Check if all
-    pass
+    with open("output.csv") as csvfile:
+        df = pd.read_csv(csvfile)
+        country = df['id'].iloc[-1]
+
+        with open(f"data/gen_students_data/{country}/{country}_regions.csv")\
+                as sourcefile:
+            source_df = pd.read_csv(sourcefile)
+
+            # Check if neighbours don't have the same send type.
+            neighbours = [n.split(",")
+                          for n in source_df["neighbours"].tolist()]
+            neighbours = [list(map(int, x)) for x in [n for n in neighbours]]
+            print(neighbours)
+
