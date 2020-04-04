@@ -86,7 +86,8 @@ explanation on how to use the check50.
 
 ##### Radio Russia
 - Add the created input files.
-- Add information about the different file extensions (for example .shp can be used for visualisations)
+- Add information about the different file extensions (.shp and .shx are used for visualisations)
+- Add information about the `neighbours.csv` files.
 - Add the constraint that the send types for problem 1 are A till G
 - Make `example_output.csv` and add a section about it
 
