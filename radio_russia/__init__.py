@@ -4,7 +4,10 @@ This file uses check50 to check the output of an AmstelHaege solution. It
 does so by doing the following tests in this order:
     - Check if output.csv exits
     - Check if the file has valid values and is structured correctly
-    - TODO: Add more tests!
+    - Check if the given configuration has no neighbouring regions with the
+        same send type.
+    - Check if the given schema is correct for assignment 2.
+    - Check if the given schema is correct for the advanced assignment.
 
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com
