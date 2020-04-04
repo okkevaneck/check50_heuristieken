@@ -51,7 +51,8 @@ def check_file():
 
         if len(df) < 1 or country not in countries or not score_is_int:
             raise check50.Failure("Expected last row of the csv to be "
-                                  "'<country>,<integer>'")
+                                  "'<country>,<schema>', for example:\n"
+                                  "\t'ukraine,1'")
 
         # Stop checking if there are no countries in the output file.
         if len(df) == 1:
@@ -69,10 +70,12 @@ def check_file():
 
             raise check50.Failure(error)
 
-        # Check if ids are the same as in the source file.
+        # Check if the values of the ids are all present.
         with open(f"data/gen_students_data/{country}/{country}_regions.csv")\
                 as sourcefile:
             source_df = pd.read_csv(sourcefile)
+
+            # Check if ids are in the source file.
             id_bools = df["id"][:-1].isin(source_df["id"].values.astype(str))\
                 .values
 
@@ -84,6 +87,20 @@ def check_file():
                 for idx in idxs:
                     error = "".join([error, f"\t'{df['id'][idx]}' \ton row "
                                             f"{idx + 2}\n"])
+
+                raise check50.Failure(error)
+
+            # Check if ids from the source file are not in output.csv.
+            id_bools = source_df["id"].astype(str).isin(df["id"][:-1].values) \
+                .values
+
+            if False in id_bools:
+                idxs = np.where(id_bools == False)[0]
+                error = "Expected to find all id(s) from the source file in " \
+                        "output.csv, but did not find:\n"
+
+                for idx in idxs:
+                    error = "".join([error, f"\t'{source_df['id'][idx]}'\n"])
 
                 raise check50.Failure(error)
 
@@ -105,7 +122,6 @@ def check_file():
 @check50.check(check_file)
 def check_configuration():
     """Check if the given configuration is valid."""
-    return
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
         country = df['id'].iloc[-1]
@@ -119,8 +135,6 @@ def check_configuration():
                           for n in source_df["neighbours"].tolist()]
             neighbours = [list(map(int, x)) for x in [n for n in neighbours]]
             types = df["type"][:-1].tolist()
-
-            print(neighbours)
 
             # Check if neighbours don't have the same send type.
             invalid = []
