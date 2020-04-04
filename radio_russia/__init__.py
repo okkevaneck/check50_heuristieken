@@ -187,8 +187,7 @@ def check_cost_assignment():
 @check50.check(check_configuration)
 def check_cost_advanced():
     """Check if the cost schema specified in output.csv is for the advanced
-    assignment.
-    """
+    assignment."""
     letters = ["A", "B", "C", "D", "E", "F", "G"]
     schema_1 = np.array([12, 26, 27, 30, 37, 39, 41])
     schema_2 = np.array([19, 20, 21, 23, 36, 37, 38])
