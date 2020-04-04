@@ -2,4 +2,8 @@ check50:
   checks: __init__.py
   files:
     - !exclude "*"
+    - !include "data/gen_students_data/china/china_regions.csv"
+    - !include "data/gen_students_data/russia/russia_regions.csv"
+    - !include "data/gen_students_data/ukraine/ukraine_regions.csv"
+    - !include "data/gen_students_data/usa/usa_regions.csv"
     - !require "output.csv"
