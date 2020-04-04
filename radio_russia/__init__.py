@@ -57,7 +57,7 @@ def check_file():
         if len(df) == 1:
             return
 
-        # Check if specified IDs are unique.
+        # Check if specified ids are unique.
         dup_bools = np.array(df["id"].duplicated())
         if True in dup_bools:
             idxs = np.where(dup_bools == True)[0]
@@ -69,7 +69,7 @@ def check_file():
 
             raise check50.Failure(error)
 
-        # Check if IDs are the same as in the source file.
+        # Check if ids are the same as in the source file.
         with open(f"data/gen_students_data/{country}/{country}_regions.csv")\
                 as sourcefile:
             source_df = pd.read_csv(sourcefile)
@@ -113,9 +113,29 @@ def check_configuration():
                 as sourcefile:
             source_df = pd.read_csv(sourcefile)
 
-            # Check if neighbours don't have the same send type.
+            # Create a list of neighbours for all ids and a list of used types.
             neighbours = [n.split(",")
                           for n in source_df["neighbours"].tolist()]
             neighbours = [list(map(int, x)) for x in [n for n in neighbours]]
+            types = df["type"][:-1].tolist()
+
             print(neighbours)
 
+            # Check if neighbours don't have the same send type.
+            invalid = []
+
+            for i, [id, type] in enumerate(df[:-1].values):
+                for n in neighbours[int(id)]:
+                    if type == types[n]:
+                        invalid.append([i, n])
+
+            if invalid:
+                error = "Found the following neighbouring regions with the " \
+                        "same send type:\n"
+
+                for i, j in invalid:
+                    error = "".join([error, f"\t'{df['id'][i]}' \tand "
+                                            f"'{df['id'][j]}' \thave the same "
+                                            f"type '{df['type'][i]}'\n"])
+
+                raise check50.Failure(error)
