@@ -11,7 +11,7 @@ if __name__ == '__main__':
         exit(-1)
 
     origin = argv[1][:-4]
-    dest = f"students/{argv[1][4:-4]}"
+    dest = f"gen_students_data/{argv[1][16:-4]}"
     print(f"Converting:\n\t`{origin}`\n  to output in\n\t`{dest}`\n")
 
     dest_path = dest.split("/")
