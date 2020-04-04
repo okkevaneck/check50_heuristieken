@@ -4,7 +4,7 @@ from shapely.ops import cascaded_union
 import fiona
 
 if __name__ == '__main__':
-    geo_df = gp.read_file("generate_input/raw/usa_updated/usa_regions.shp")
+    geo_df = gp.read_file("raw/usa_updated/usa_regions.shp")
     geo_df_vals = geo_df.geometry.tolist()
 
     new_geos = []
@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     for i, poly in enumerate(geo_df_vals):
         # Delete these.
-        if i in [40,31,41,34,36,49]:
+        if i in [33]:
             continue
 
         # # Merge 45,46,47.
@@ -39,4 +39,4 @@ if __name__ == '__main__':
     print(new_geos)
     print(new_df)
 
-    new_df.to_file("generate_input/raw/usa_updated/usa_regions_updated.shp")
+    new_df.to_file("raw/usa_updated/usa_regions_updated.shp")
