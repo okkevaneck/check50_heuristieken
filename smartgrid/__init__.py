@@ -85,16 +85,95 @@ def check_file():
         # Check for all batteries if the locations are in valid format.
         loc_coords = df[1:]["location"].values
         coord_bool = [False if False in list(map(str.isdigit, coord.split(",")))
-                      else True for i, coord in enumerate(loc_coords)]
+                      else True for coord in loc_coords]
 
         if False in coord_bool:
             idxs = np.where(np.array(coord_bool) == False)[0]
-            print(coord_bool)
             error = "Expected battery coordinates to have the format " \
                     "'<int>,<int>', but found:\n"
 
             for idx in idxs:
                 error = "".join([error, f"\t'{loc_coords[idx]}' \tfor battery "
-                                        f"{idx}\n"])
+                                        f"{idx + 1}\n"])
+
+            raise check50.Failure(error)
+
+        # Check for all batteries if the capacity is a float.
+        caps = df[1:]["capacity"].values
+        caps_error = []
+
+        for i, cap in enumerate(caps):
+            try:
+                float(cap)
+            except ValueError:
+                caps_error.append(i)
+
+        if caps_error:
+            error = "Expected battery capacities to be floats, but found:\n"
+
+            for idx in caps_error:
+                error = "".join([error, f"\t'{caps[idx]}'        \tfor battery "
+                                        f"{idx + 1}\n"])
+
+            raise check50.Failure(error)
+
+        # Check location and output of all houses for all batteries.
+        error = "Expected all house locations to have format '<int>,<int>' " \
+                "and their outputs to be floats, but found:\n"
+        loc_errors = []
+        out_errors = []
+
+        for i in range(1, len(df)):
+            houses = df.loc[i]["houses"]
+
+            for j, house in enumerate(houses):
+                loc_bools = list(map(str.isdigit, house["location"].split(",")))
+
+                if False in loc_bools:
+                    loc_errors.append([i, j])
+
+                try:
+                    float(house["output"])
+                except ValueError:
+                    out_errors.append([i, j])
+
+        for battery, house in loc_errors:
+            location = df.loc[battery]["houses"][house]["location"]
+            error = "".join([error, f"\t'{location}' \t as location for house "
+                                    f"{house + 1} of battery {battery}\n"])
+
+        for battery, house in out_errors:
+            output = df.loc[battery]["houses"][house]["output"]
+            error = "".join([error, f"\t'{output}'        \t as output for "
+                                    f"house {house + 1} of battery {battery}"
+                                    f"\n"])
+
+        if loc_errors or out_errors:
+            raise check50.Failure(error)
+
+        # Check if all cables have locations in a valid format.
+        error = "Expected all cable locations to be floats, but found:\n"
+        cable_errors = []
+
+        for i in range(1, len(df)):
+            houses = df.loc[i]["houses"]
+
+            for j, house in enumerate(houses):
+                cable_bools = [False if False in list(map(str.isdigit,
+                                                          coord.split(",")))
+                               else True for coord in house["cables"]]
+
+                if False in cable_bools:
+                    idxs = np.where(np.array(cable_bools) == False)[0]
+
+                    for idx in idxs:
+                        cable_errors.append([i, j, idx])
+
+        if cable_errors:
+            for battery, house, cable in cable_errors:
+                coord = df.loc[battery]["houses"][house]["cables"][cable]
+                error = "".join([error, f"\t'{coord}' \t for cable "
+                                        f"{cable + 1} from house {house + 1} "
+                                        f"of battery {battery}\n"])
 
             raise check50.Failure(error)
