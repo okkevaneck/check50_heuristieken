@@ -90,5 +90,13 @@ explanation on how to use the check50.
 - Add information about the `neighbours.csv` files.
 - Make `example_output.csv` and add a section about it
 
+##### SmartGrid
+- Remove `.txt` files from data.
+- Remove spaces and brackets from data files and rename everything to English.
+- Turn `example_output.json` into English.
+- Add header object to `example_output.json` with district and costs.
+- Remove parentheses from coordinates in `example_output.json`.
+- Maybe add more info how the `.json` is structured in problem.
+
 ### TODOs in all code:
 - Fix row numbers in the errors of Protein Powder, AmstelHaege and RailNL

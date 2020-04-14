@@ -1,0 +1,11 @@
+check50:
+  checks: __init__.py
+  files:
+    - !exclude "*"
+    - !include "data/district_1/district-1_batteries.csv"
+    - !include "data/district_1/district-1_houses.csv"
+    - !include "data/district_2/district-2_batteries.csv"
+    - !include "data/district_2/district-2_houses.csv"
+    - !include "data/district_3/district-3_batteries.csv"
+    - !include "data/district_3/district-3_houses.csv"
+    - !require "output.json"
