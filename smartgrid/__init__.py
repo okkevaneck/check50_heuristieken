@@ -179,6 +179,7 @@ def check_file():
 
             raise check50.Failure(error)
 
+
 @check50.check(check_file)
 def check_structure():
     """Check if the structured solution of output.json is correct."""
@@ -243,5 +244,50 @@ def check_structure():
 
             raise check50.Failure(error)
 
-        # TODO: Check of cables daadwerkelijk huis met batterij verbind.
-        # TODO: Check of capactiteit niet wordt overschreden.
+        # Check if cables do connect house with battery.
+        for i in range(1, len(df)):
+            dest_x, dest_y = list(map(int, df.loc[i]["location"].split(",")))
+            houses = df.loc[i]["houses"]
+
+            for j, house in enumerate(houses):
+                cur_x, cur_y = list(map(int, house["location"].split(",")))
+
+                # Check if first cable is same as the house location.
+                if house["cables"][0] != house["location"]:
+                    raise check50.Failure(f"Expected first cable to connect to"
+                                          f"the house, but found:\n\t"
+                                          f"'{house['cables'][0]}' instead of "
+                                          f"'{house['location']}'")
+
+                for cable in house["cables"][1:]:
+                    new_x, new_y = list(map(int, cable.split(",")))
+
+                    # Raise error if step size is bigger than 1. `!=` is a xor.
+                    if not ((abs(cur_x - new_x) == 1 and cur_y - new_y == 0) !=
+                            (cur_x - new_x == 0 and abs(cur_y - new_y) == 1)):
+                        raise check50.Failure(f"Expected the cables to follow "
+                                              f"each other up, but found the "
+                                              f"gap:\n\t'{cur_x},{cur_y}' "
+                                              f"-> '{new_x},{new_y}' \tfor "
+                                              f"house {j + 1} of battery "
+                                              f"{i + 1}")
+
+                    cur_x += new_x - cur_x
+                    cur_y += new_y - cur_y
+
+                # Check if last cable is same as the battery.
+                if cur_x != dest_x or cur_y != dest_y:
+                    raise check50.Failure(f"Expected last cable to connect to "
+                                          f"the battery, but found:\n\t"
+                                          f"'{cur_x},{cur_y}' instead of "
+                                          f"'{df.loc[i]['location']}'")
+
+        # Check if capacities are not exceeded.
+        # TODO: Implement.
+
+
+@check50.check(check_structure)
+def check_cost():
+    """Check if solution costs as much as specified in output.json."""
+    # TODO: Implement.
+    pass

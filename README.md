@@ -96,6 +96,7 @@ explanation on how to use the check50.
 - Turn `example_output.json` into English.
 - Add header object to `example_output.json` with district and costs.
 - Remove parentheses from coordinates in `example_output.json`.
+- Add explanation that cables have to be placed on top of the house and battery.
 - Maybe add more info how the `.json` is structured in problem.
 
 ### TODOs in all code:
