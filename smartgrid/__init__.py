@@ -14,6 +14,7 @@ import check50
 import pandas as pd
 import numpy as np
 import os
+from collections import Counter
 
 
 @check50.check()
@@ -25,7 +26,7 @@ def exists():
 @check50.check(exists)
 def check_file():
     """Check if the structure and values of output.json are correct."""
-    # Check if output.csv has content.
+    # Check if output.json has content.
     if os.stat("output.json").st_size == 0:
         raise check50.Failure("Output.csv may not be empty. Provide at least "
                               "an header object with the district and costs, "
@@ -177,3 +178,70 @@ def check_file():
                                         f"of battery {battery}\n"])
 
             raise check50.Failure(error)
+
+@check50.check(check_file)
+def check_structure():
+    """Check if the structured solution of output.json is correct."""
+    with open("output.json") as jsonfile:
+        df = pd.read_json(jsonfile)
+
+        # Check if the houses and batteries do not overlap.
+        battery_locs = df[1:]["location"].to_list()
+        house_locs = np.array([[battery, house["location"]]
+                       for battery, houses in enumerate(df[1:]["houses"])
+                       for house in houses])
+        # locs = np.append(battery_locs, house_locs[:,1])
+
+
+        # Check for overlap between batteries.
+        dup_bools =  pd.DataFrame(battery_locs).duplicated(keep=False).values
+
+        if True in dup_bools:
+            idxs = np.where(dup_bools == True)[0]
+            error = "Expected no overlap between batteries, but found " \
+                    "duplicate locations:\n"
+
+            for idx in idxs:
+                error = "".join([error, f"\t'{battery_locs[idx]}' \tfrom "
+                                        f"battery {idx + 1}\n"])
+            raise check50.Failure(error)
+
+        # Check for overlap between houses.
+        dup_bools = pd.DataFrame(house_locs[:,1]).duplicated(keep=False).values
+
+        if True in dup_bools:
+            idxs = np.where(dup_bools == True)[0]
+            error = "Expected no overlap between houses, but found duplicate" \
+                    "locations:\n"
+
+            for idx in idxs:
+                error = "".join([error, f"\t'{house_locs[idx][1]}' \tfrom "
+                                        f"house {idx + 1} of battery "
+                                        f"{int(house_locs[idx][0]) + 1}\n"])
+            raise check50.Failure(error)
+
+        # Check for overlap between batteries and houses.
+        battery_df = pd.DataFrame(battery_locs)
+        house_df = pd.DataFrame(house_locs[:,1])
+        battery_overlap = battery_df[0].isin(house_df[0])
+        house_overlap = house_df[0].isin(battery_df[0])
+
+        if True in battery_overlap.values or True in house_overlap.values:
+            battery_idxs = np.where(battery_overlap == True)[0]
+            house_idxs = np.where(house_overlap == True)[0]
+            error = "Expected no overlap between batteries and houses, but " \
+                    "found duplicate locations:\n"
+
+            for idx in battery_idxs:
+                error = "".join([error, f"\t'{battery_locs[idx]}' \tfrom "
+                                        f"battery {idx + 1}\n"])
+
+            for idx in house_idxs:
+                error = "".join([error, f"\t'{house_locs[idx][1]}' \tfrom "
+                                        f"house {idx + 1} of battery "
+                                        f"{int(house_locs[idx][0]) + 1}\n"])
+
+            raise check50.Failure(error)
+
+        # TODO: Check of cables daadwerkelijk huis met batterij verbind.
+        # TODO: Check of capactiteit niet wordt overschreden.
