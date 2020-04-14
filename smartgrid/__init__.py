@@ -191,8 +191,6 @@ def check_structure():
         house_locs = np.array([[battery, house["location"]]
                        for battery, houses in enumerate(df[1:]["houses"])
                        for house in houses])
-        # locs = np.append(battery_locs, house_locs[:,1])
-
 
         # Check for overlap between batteries.
         dup_bools =  pd.DataFrame(battery_locs).duplicated(keep=False).values
@@ -283,7 +281,14 @@ def check_structure():
                                           f"'{df.loc[i]['location']}'")
 
         # Check if capacities are not exceeded.
-        # TODO: Implement.
+        for i in range(1, len(df)):
+            capacity = df.loc[i]["capacity"]
+            output = sum([house["output"] for house in df.loc[i]["houses"]])
+
+            if capacity - output < 0:
+                raise check50.Failure(f"Capacity of battery {i} was exceeded."
+                                      f"\n\tCapacity: \t{capacity}\n"
+                                      f"\tTotal usage: \t{output}")
 
 
 @check50.check(check_structure)
