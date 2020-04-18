@@ -36,16 +36,16 @@ def check_file():
 
         # Check if header object has the needed attributes.
         error = "Did not find all attributes for the header object.\n" \
-                "    Expected to find 'district' and 'cost', but did not " \
-                "find:\n"
+                "    Expected to find 'district' and 'cost-own' or " \
+                "'cost-shared',\n    but did not find:\n"
         found_error = False
 
         if not np.isin(["district"], list(df)):
             found_error = True
             error = "".join([error, f"\t'district'\n"])
 
-        if not np.isin(["cost-own"], list(df)) or \
-                np.isin(["cost-shared"], list(df)):
+        if not np.isin(["cost-own"], list(df)) and \
+                not np.isin(["cost-shared"], list(df)):
             found_error = True
             error = "".join([error, f"\t'cost-own' or 'cost-shared'\n"])
 
@@ -279,8 +279,8 @@ def check_structure():
         # Check if the houses and batteries do not overlap.
         battery_locs = df[1:]["location"].to_list()
         house_locs = np.array([[battery, house["location"]]
-                       for battery, houses in enumerate(df[1:]["houses"])
-                       for house in houses])
+                              for battery, houses in enumerate(df[1:]["houses"])
+                              for house in houses])
 
         # Check for overlap between batteries.
         dup_bools =  pd.DataFrame(battery_locs).duplicated(keep=False).values
@@ -332,43 +332,54 @@ def check_structure():
 
             raise check50.Failure(error)
 
-        # Check if cables do connect house with battery.
-        for i in range(1, len(df)):
-            dest_x, dest_y = list(map(int, df.loc[i]["location"].split(",")))
-            houses = df.loc[i]["houses"]
+        # Check if cables connect the houses with the batteries.
+        if np.isin(["cost-own"], list(df)):
+            # Check if cables do connect a house with a battery, if not shared.
+            for i in range(1, len(df)):
+                dest_x, dest_y = list(map(int,
+                                          df.loc[i]["location"].split(",")))
+                houses = df.loc[i]["houses"]
 
-            for j, house in enumerate(houses):
-                cur_x, cur_y = list(map(int, house["location"].split(",")))
+                for j, house in enumerate(houses):
+                    cur_x, cur_y = list(map(int, house["location"].split(",")))
 
-                # Check if first cable is same as the house location.
-                if house["cables"][0] != house["location"]:
-                    raise check50.Failure(f"Expected first cable to connect to"
-                                          f"the house, but found:\n\t"
-                                          f"'{house['cables'][0]}' instead of "
-                                          f"'{house['location']}'")
+                    # Check if first cable is same as the house location.
+                    if house["cables"][0] != house["location"]:
+                        raise check50.Failure(f"Expected first cable to "
+                                              f"connect to the house, but "
+                                              f"found:\n\t"
+                                              f"'{house['cables'][0]}' instead "
+                                              f"of '{house['location']}'")
 
-                for cable in house["cables"][1:]:
-                    new_x, new_y = list(map(int, cable.split(",")))
+                    for cable in house["cables"][1:]:
+                        new_x, new_y = list(map(int, cable.split(",")))
 
-                    # Raise error if step size is bigger than 1. `!=` is a xor.
-                    if not ((abs(cur_x - new_x) == 1 and cur_y - new_y == 0) !=
-                            (cur_x - new_x == 0 and abs(cur_y - new_y) == 1)):
-                        raise check50.Failure(f"Expected the cables to follow "
-                                              f"each other up, but found the "
-                                              f"gap:\n\t'{cur_x},{cur_y}' "
-                                              f"-> '{new_x},{new_y}' \tfor "
-                                              f"house {j + 1} of battery "
-                                              f"{i + 1}")
+                        # Raise error if step size is bigger than 1.
+                        # `!=` acts as a xor.
+                        x_changed = abs(cur_x - new_x) == 1 and \
+                                    cur_y - new_y == 0
+                        y_changed = abs(cur_y - new_y) == 1 and \
+                                    cur_x - new_x == 0
+                        if not x_changed != y_changed:
+                            raise check50.Failure(f"Expected the cables to "
+                                                  f"follow each other up, but "
+                                                  f"found the gap:\n\t"
+                                                  f"'{cur_x},{cur_y}' -> "
+                                                  f"'{new_x},{new_y}' \tfor "
+                                                  f"house {j + 1} of battery "
+                                                  f"{i + 1}")
 
-                    cur_x += new_x - cur_x
-                    cur_y += new_y - cur_y
+                        cur_x += new_x - cur_x
+                        cur_y += new_y - cur_y
 
-                # Check if last cable is same as the battery.
-                if cur_x != dest_x or cur_y != dest_y:
-                    raise check50.Failure(f"Expected last cable to connect to "
-                                          f"the battery, but found:\n\t"
-                                          f"'{cur_x},{cur_y}' instead of "
-                                          f"'{df.loc[i]['location']}'")
+                    # Check if last cable is same as the battery.
+                    if cur_x != dest_x or cur_y != dest_y:
+                        raise check50.Failure(f"Expected last cable to connect "
+                                              f"to the battery, but found:\n\t"
+                                              f"'{cur_x},{cur_y}' instead of "
+                                              f"'{df.loc[i]['location']}'")
+        else:
+            cost_label = "cost-shared"
 
         # Check if capacities are not exceeded.
         for i in range(1, len(df)):
@@ -387,12 +398,16 @@ def check_cost():
     with open("output.json") as jsonfile:
         df = pd.read_json(jsonfile)
 
-        # Determine if cables may be shared.
-        if np.isin(["cost-own"], list(df)):
-            cost_label = "cost-own"
-        else:
-            cost_label = "cost-shared"
+        # Collect all cables.
+        cables = []
+        for i in range(1, len(df)):
+            for house in df.loc[i]["houses"]:
+                cables.extend(house["cables"])
 
+        print(cables, end="\n\n")
 
-        # TODO: Implement.
-        pass
+        # Determine if cables may be shared and remove duplicates if so.
+        if np.isin(["cost-shared"], list(df)):
+            cables = list(set(cables))
+
+        print(cables)
