@@ -14,7 +14,6 @@ import check50
 import pandas as pd
 import numpy as np
 import os
-from collections import Counter
 
 
 @check50.check()
@@ -36,31 +35,38 @@ def check_file():
         df = pd.read_json(jsonfile)
 
         # Check if header object has the needed attributes.
-        attributes = np.array(["district", "cost", "location", "capacity",
-                               "houses"])
-        attr_bools = np.isin(attributes[:2], list(df))
+        error = "Did not find all attributes for the header object.\n" \
+                "    Expected to find 'district' and 'cost', but did not " \
+                "find:\n"
+        found_error = False
 
-        if False in attr_bools:
-            idxs = np.where(attr_bools == False)[0]
-            error = "Did not find all attributes for the header object.\n" \
-                    "    Expected to find 'district' and 'cost', but did not " \
-                    "find:\n"
+        if not np.isin(["district"], list(df)):
+            found_error = True
+            error = "".join([error, f"\t'district'\n"])
 
-            for idx in idxs:
-                error = "".join([error, f"\t'{attributes[idx]}'\n"])
+        if not np.isin(["cost-own"], list(df)) or \
+                np.isin(["cost-shared"], list(df)):
+            found_error = True
+            error = "".join([error, f"\t'cost-own' or 'cost-shared'\n"])
 
+        if found_error:
             raise check50.Failure(error)
+
+        if np.isin(["cost-own"], list(df)):
+            cost_label = "cost-own"
+        else:
+            cost_label = "cost-shared"
 
         # Check if the header attributes have a values.
         notna_bools_df = df.loc[0].notna()
-        if not notna_bools_df["district"] or not notna_bools_df["cost"]:
+        if not notna_bools_df["district"] or not notna_bools_df[cost_label]:
             error = "Expected the header object attributes to have a value, " \
                     "but found:\n"
 
             if not notna_bools_df["district"]:
                 error = "".join([error, f"\t'district': \tNaN\n"])
 
-            if not notna_bools_df["cost"]:
+            if not notna_bools_df["cost_label"]:
                 error = "".join([error, f"\t'cost': \tNaN\n"])
 
             raise check50.Failure(error)
@@ -73,15 +79,58 @@ def check_file():
                                   f"got:\n\t'{df.loc[0]['district']}'")
 
         try:
-            df.loc[0]["cost"].astype("Int64")
+            df.loc[0][cost_label].astype("Int64")
         except AttributeError:
-            raise check50.Failure("Expected integer value for 'cost', but got:"
-                                  f"\n\t'{df.loc[0]['cost']}'")
+            raise check50.Failure(f"Expected integer value for '{cost_label}', "
+                                  f"but got:\n\t'{df.loc[0][cost_label]}'")
 
         # Check if district is valid number.
         if district not in [1, 2, 3]:
             raise check50.Failure("Expected 1, 2 or 3 for 'district', but got:"
                                   f"\n\t{district}")
+
+
+        # Check labels for every battery.
+        error = f"Expected batteries to have the attributes 'location', " \
+                f"'capacity' and 'houses', but did not find:\n"
+        attributes = ["location", "capacity", "houses"]
+        missed_label = False
+
+        for i in range(1, len(df)):
+            key_bools = [df.loc[i].notna()[a] for a in attributes]
+
+            if False in key_bools:
+                idxs = np.where(np.array(key_bools) == False)[0]
+                missed_label = True
+
+                for idx in idxs:
+                    error = "".join([error, f"\t'{attributes[idx]}' \tfor "
+                                            f"battery {i}\n"])
+
+        if missed_label:
+            raise check50.Failure(error)
+
+        # Check labels for every house.
+        error = f"Expected houses to have the attributes 'location', " \
+                f"'output' and 'cables', but did not find:\n"
+        attributes = ["location", "output", "cables"]
+        missed_label = False
+
+        for i in range(1, len(df)):
+            for j, house in enumerate(df.loc[i]["houses"]):
+                key_bools = [a in house for a in attributes]
+
+                if False in key_bools:
+                    idxs = np.where(np.array(key_bools) == False)[0]
+                    missed_label = True
+
+                    for idx in idxs:
+                        error = "".join([error, f"\t'{attributes[idx]}' \tfor "
+                                                f"house {j + 1} of battery "
+                                                f"{i}\n"])
+
+        if missed_label:
+            raise check50.Failure(error)
 
         # Check for all batteries if the locations are in valid format.
         loc_coords = df[1:]["location"].values
@@ -294,5 +343,15 @@ def check_structure():
 @check50.check(check_structure)
 def check_cost():
     """Check if solution costs as much as specified in output.json."""
-    # TODO: Implement.
-    pass
+    with open("output.json") as jsonfile:
+        df = pd.read_json(jsonfile)
+
+        # Determine if cables may be shared.
+        if np.isin(["cost-own"], list(df)):
+            cost_label = "cost-own"
+        else:
+            cost_label = "cost-shared"
+
+
+        # TODO: Implement.
+        pass

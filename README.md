@@ -45,7 +45,7 @@ You can run your local version of a check by running `check50` with the
 
 ### Required case changes
 There are some changes required for the cases. The changes are de described 
-below, devided by case. For each case it will be necessary to write an 
+below, divided by case. For each case it will be necessary to write an 
 explanation on how to use the check50.
 
 ##### Protein Powder
@@ -97,7 +97,8 @@ explanation on how to use the check50.
 - Add header object to `example_output.json` with district and costs.
 - Remove parentheses from coordinates in `example_output.json`.
 - Add explanation that cables have to be placed on top of the house and battery.
+- Add info about cost specifier, i.e. use `cost-own` or `cost-shared` in `output.csv`.
 - Maybe add more info how the `.json` is structured in problem.
 
-### TODOs in all code:
+### TODOs in (all) code:
 - Fix row numbers in the errors of Protein Powder, AmstelHaege and RailNL
