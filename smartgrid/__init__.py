@@ -4,7 +4,9 @@ This file uses check50 to check the output of an SmartGrid solution. It
 does so by doing the following tests in this order:
     - Check if output.csv exits
     - Check if the file has valid values and is structured correctly
-    - TODO: Add more tests!
+    - Check if houses are connected properly to their batteries, with or
+      without sharing cables.
+    - Check if the given costs are correct, with or without sharing cables.
 
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com
@@ -37,26 +39,26 @@ def check_file():
 
         # Check if header object has the needed attributes.
         error = "Did not find all attributes for the header object.\n" \
-                "    Expected to find 'district' and 'cost-own' or " \
-                "'cost-shared',\n    but did not find:\n"
+                "    Expected to find 'district' and 'costs-own' or " \
+                "'costs-shared',\n    but did not find:\n"
         found_error = False
 
         if not np.isin(["district"], list(df)):
             found_error = True
             error = "".join([error, f"\t'district'\n"])
 
-        if not np.isin(["cost-own"], list(df)) and \
-                not np.isin(["cost-shared"], list(df)):
+        if not np.isin(["costs-own"], list(df)) and \
+                not np.isin(["costs-shared"], list(df)):
             found_error = True
-            error = "".join([error, f"\t'cost-own' or 'cost-shared'\n"])
+            error = "".join([error, f"\t'costs-own' or 'costs-shared'\n"])
 
         if found_error:
             raise check50.Failure(error)
 
-        if np.isin(["cost-own"], list(df)):
-            cost_label = "cost-own"
+        if np.isin(["costs-own"], list(df)):
+            cost_label = "costs-own"
         else:
-            cost_label = "cost-shared"
+            cost_label = "costs-shared"
 
         # Check if the header attributes have a values.
         notna_bools_df = df.loc[0].notna()
@@ -339,7 +341,7 @@ def check_structure():
         found_error = False
 
         # Collect all cables if they are shared.
-        if np.isin(["cost-shared"], list(df)):
+        if np.isin(["costs-shared"], list(df)):
             cables = set()
             for i in range(1, len(df)):
                 for house in df.loc[i]["houses"]:
@@ -365,7 +367,7 @@ def check_structure():
 
                 # Fetch all cables for this battery house combination if cables
                 # are not shared and check if house and batteries have cables.
-                if np.isin(["cost-own"], list(df)):
+                if np.isin(["costs-own"], list(df)):
                     for k, n in enumerate(house["cables"]):
                         cable_coords = tuple(map(int, n.split(",")))
                         if cable_coords == battery_coords:
@@ -454,11 +456,11 @@ def check_cost():
                 cables.extend(house["cables"])
 
         # Determine if cables may be shared and remove duplicates if so.
-        if np.isin(["cost-shared"], list(df)):
+        if np.isin(["costs-shared"], list(df)):
             cables = list(set(cables))
-            cost_label = "cost-shared"
+            cost_label = "costs-shared"
         else:
-            cost_label = "cost-own"
+            cost_label = "costs-own"
 
         cable_costs = 9 * len(cables)
         battery_costs = 5000 * len(df[1:])
