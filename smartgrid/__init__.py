@@ -14,6 +14,7 @@ import check50
 import pandas as pd
 import numpy as np
 import os
+import networkx as nx
 
 
 @check50.check()
@@ -332,54 +333,77 @@ def check_structure():
 
             raise check50.Failure(error)
 
-        # Check if cables connect the houses with the batteries.
+        # Check if cables connect the houses to their batteries.
         if np.isin(["cost-own"], list(df)):
-            # Check if cables do connect a house with a battery, if not shared.
+            error = "Expected all houses to connect to their battery, but " \
+                    "found that:\n"
+            found_error = False
+
             for i in range(1, len(df)):
                 dest_x, dest_y = list(map(int,
                                           df.loc[i]["location"].split(",")))
-                houses = df.loc[i]["houses"]
 
-                for j, house in enumerate(houses):
-                    cur_x, cur_y = list(map(int, house["location"].split(",")))
+                # Check for all houses if the cables make a path to the battery.
+                for j, house in enumerate(df.loc[i]["houses"]):
+                    house_coords = list(map(int, house["location"].split(",")))
 
-                    # Check if first cable is same as the house location.
-                    if house["cables"][0] != house["location"]:
-                        raise check50.Failure(f"Expected first cable to "
-                                              f"connect to the house, but "
-                                              f"found:\n\t"
-                                              f"'{house['cables'][0]}' instead "
-                                              f"of '{house['location']}'")
+                    graph = nx.Graph()
+                    graph.add_nodes_from([0, 1])
+                    nodes = {(dest_x, dest_y): 0, tuple(house_coords): 1}
 
-                    for cable in house["cables"][1:]:
-                        new_x, new_y = list(map(int, cable.split(",")))
+                    # Set booleans for checking if the house and battery have a
+                    # cable.
+                    battery_cable = False
+                    house_cable = False
 
-                        # Raise error if step size is bigger than 1.
-                        # `!=` acts as a xor.
-                        x_changed = abs(cur_x - new_x) == 1 and \
-                                    cur_y - new_y == 0
-                        y_changed = abs(cur_y - new_y) == 1 and \
-                                    cur_x - new_x == 0
-                        if not x_changed != y_changed:
-                            raise check50.Failure(f"Expected the cables to "
-                                                  f"follow each other up, but "
-                                                  f"found the gap:\n\t"
-                                                  f"'{cur_x},{cur_y}' -> "
-                                                  f"'{new_x},{new_y}' \tfor "
-                                                  f"house {j + 1} of battery "
-                                                  f"{i + 1}")
+                    # Fetch all nodes.
+                    for k, n in enumerate(house["cables"]):
+                        if list(map(int, n.split(","))) == [dest_x, dest_y]:
+                            battery_cable = True
+                        elif list(map(int, n.split(","))) == house_coords:
+                            house_cable = True
+                        else:
+                            graph.add_node(k)
+                            nodes[tuple(map(int, n.split(",")))] = k + 2
 
-                        cur_x += new_x - cur_x
-                        cur_y += new_y - cur_y
+                    # Create edges between neighbouring nodes.
+                    for coord, id in nodes.items():
+                        cur_pos = list(coord)
 
-                    # Check if last cable is same as the battery.
-                    if cur_x != dest_x or cur_y != dest_y:
-                        raise check50.Failure(f"Expected last cable to connect "
-                                              f"to the battery, but found:\n\t"
-                                              f"'{cur_x},{cur_y}' instead of "
-                                              f"'{df.loc[i]['location']}'")
+                        # Check neighbours by changing a specific axis.
+                        for move in [-2, -1, 1, 2]:
+                            cur_pos[abs(move) - 1] += move // abs(move)
+
+                            if tuple(cur_pos) in nodes:
+                                graph.add_edge(id, nodes[tuple(cur_pos)])
+
+                            cur_pos[abs(move) - 1] -= move // abs(move)
+
+                    # Check if the house and battery have been connected.
+                    if not battery_cable:
+                        error = "".join([error, f"\tBattery {i} \thas no cable "
+                                                f"cable to connect to House "
+                                                f"{j + 1}\n"])
+                        found_error = True
+
+                    if not house_cable:
+                        error = "".join([error, f"\tHouse {j + 1} \tof Battery "
+                                                f"{i} \t has no outgoing"
+                                                f" cable\n"])
+                        found_error = True
+
+                    # Check if there is a path between the house and the battery.
+                    if battery_cable and house_cable and \
+                            not nx.has_path(graph, 0, 1):
+                        error = "".join([error, f"\tBattery {i} \tis not "
+                                                f"connected to House {j + 1}"
+                                                f"\n"])
+                        found_error = True
+
+            if found_error:
+                raise check50.Failure(error)
         else:
-            cost_label = "cost-shared"
+            pass
 
         # Check if capacities are not exceeded.
         for i in range(1, len(df)):
