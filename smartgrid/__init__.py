@@ -334,76 +334,101 @@ def check_structure():
             raise check50.Failure(error)
 
         # Check if cables connect the houses to their batteries.
-        if np.isin(["cost-own"], list(df)):
-            error = "Expected all houses to connect to their battery, but " \
-                    "found that:\n"
-            found_error = False
+        error = "Expected all houses to connect to their battery, but found " \
+                "that:\n"
+        found_error = False
 
+        # Collect all cables if they are shared.
+        if np.isin(["cost-shared"], list(df)):
+            cables = set()
             for i in range(1, len(df)):
-                dest_x, dest_y = list(map(int,
-                                          df.loc[i]["location"].split(",")))
+                for house in df.loc[i]["houses"]:
+                    for cable in house["cables"]:
+                        cables.add(tuple(map(int, cable.split(","))))
 
-                # Check for all houses if the cables make a path to the battery.
-                for j, house in enumerate(df.loc[i]["houses"]):
-                    house_coords = list(map(int, house["location"].split(",")))
+        # Loop over all batteries.
+        for i in range(1, len(df)):
+            battery_coords = tuple(map(int, df.loc[i]["location"].split(",")))
 
-                    graph = nx.Graph()
-                    graph.add_nodes_from([0, 1])
-                    nodes = {(dest_x, dest_y): 0, tuple(house_coords): 1}
+            # Check for all houses if the cables make a path to the battery.
+            for j, house in enumerate(df.loc[i]["houses"]):
+                house_coords = tuple(map(int, house["location"].split(",")))
 
-                    # Set booleans for checking if the house and battery have a
-                    # cable.
-                    battery_cable = False
-                    house_cable = False
+                graph = nx.Graph()
+                graph.add_nodes_from([0, 1])
+                nodes = {battery_coords: 0, house_coords: 1}
 
-                    # Fetch all nodes.
+                # Set booleans for checking if the house and battery have a
+                # cable.
+                battery_cable = False
+                house_cable = False
+
+                # Fetch all cables for this battery house combination if cables
+                # are not shared and check if house and batteries have cables.
+                if np.isin(["cost-own"], list(df)):
                     for k, n in enumerate(house["cables"]):
-                        if list(map(int, n.split(","))) == [dest_x, dest_y]:
+                        cable_coords = tuple(map(int, n.split(",")))
+                        if cable_coords == battery_coords:
                             battery_cable = True
-                        elif list(map(int, n.split(","))) == house_coords:
+                        elif cable_coords == house_coords:
                             house_cable = True
                         else:
-                            graph.add_node(k)
-                            nodes[tuple(map(int, n.split(",")))] = k + 2
+                            graph.add_node(k + 2)
+                            nodes[cable_coords] = k + 2
 
-                    # Create edges between neighbouring nodes.
-                    for coord, id in nodes.items():
-                        cur_pos = list(coord)
+                # Check if houses and battery have cables if cables are shared
+                # and add cables to nodes.
+                else:
+                    if battery_coords in cables:
+                        battery_cable = True
 
-                        # Check neighbours by changing a specific axis.
-                        for move in [-2, -1, 1, 2]:
-                            cur_pos[abs(move) - 1] += move // abs(move)
+                    if house_coords in cables:
+                        house_cable = True
 
-                            if tuple(cur_pos) in nodes:
-                                graph.add_edge(id, nodes[tuple(cur_pos)])
+                    if battery_cable and house_cable:
+                        for k, cable in enumerate(cables):
+                            if cable != battery_coords and \
+                                    cable != house_coords:
+                                graph.add_node(k + 2)
+                                nodes[cable] = k + 2
 
-                            cur_pos[abs(move) - 1] -= move // abs(move)
+                # Create edges between neighbouring nodes.
+                for coord, id in nodes.items():
+                    cur_pos = list(coord)
 
-                    # Check if the house and battery have been connected.
-                    if not battery_cable:
-                        error = "".join([error, f"\tBattery {i} \thas no cable "
-                                                f"cable to connect to House "
-                                                f"{j + 1}\n"])
-                        found_error = True
+                    # Check neighbours by changing a specific axis.
+                    for move in [-2, -1, 1, 2]:
+                        cur_pos[abs(move) - 1] += move // abs(move)
 
-                    if not house_cable:
-                        error = "".join([error, f"\tHouse {j + 1} \tof Battery "
-                                                f"{i} \t has no outgoing"
-                                                f" cable\n"])
-                        found_error = True
+                        if tuple(cur_pos) in nodes:
+                            graph.add_edge(id, nodes[tuple(cur_pos)])
 
-                    # Check if there is a path between the house and the battery.
-                    if battery_cable and house_cable and \
-                            not nx.has_path(graph, 0, 1):
-                        error = "".join([error, f"\tBattery {i} \tis not "
-                                                f"connected to House {j + 1}"
-                                                f"\n"])
-                        found_error = True
+                        cur_pos[abs(move) - 1] -= move // abs(move)
 
-            if found_error:
-                raise check50.Failure(error)
-        else:
-            pass
+                # Check if the house and battery have been connected.
+                if not battery_cable:
+                    error = "".join([error, f"\tBattery {i} \thas no cable "
+                                            f"cable to connect to House "
+                                            f"{j + 1}\n"])
+                    found_error = True
+
+                if not house_cable:
+                    error = "".join([error, f"\tHouse {j + 1} \tof Battery "
+                                            f"{i} \t has no outgoing"
+                                            f" cable\n"])
+                    found_error = True
+
+                # Check if there is a path between the house and the battery.
+                if battery_cable and house_cable and \
+                        not nx.has_path(graph, 0, 1):
+                    error = "".join([error, f"\tBattery {i} \tis not "
+                                            f"connected to House {j + 1}"
+                                            f"\n"])
+                    found_error = True
+
+        # Raise errors if there were any during connected check.
+        if found_error:
+            raise check50.Failure(error)
 
         # Check if capacities are not exceeded.
         for i in range(1, len(df)):
