@@ -8,7 +8,7 @@ You must have python3 installed and a possibility for creating a virtual
 environment. The example below uses the python3-venv package, but you can use
 your own as well.
 
-###### Install packages.
+###### Install python packages.
 `sudo apt-get install python3 python3-venv`
 
 ###### Create virtual environment and activate it.
@@ -30,12 +30,12 @@ denote the folder name of the case as `<case>`.
 
 ###### Run on the check50 servers.
 You can run the checks on GitHub on the check50-servers by running the command:  
-`check50 OkkeVanEck/cs50_heuristieken/master/<case>`
+`check50 OkkeVanEck/check50_heuristieken/master/<case>`
 
 ###### Run locally
 You can run the checks on GitHub locally by running the same command with the
 `--local` flag specified:  
-`check50 --local OkkeVanEck/cs50_heuristieken/master/<case>`
+`check50 --local OkkeVanEck/check50_heuristieken/master/<case>`
 
 ###### Run local code
 You can run your local version of a check by running `check50` with the 
