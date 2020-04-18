@@ -404,10 +404,24 @@ def check_cost():
             for house in df.loc[i]["houses"]:
                 cables.extend(house["cables"])
 
-        print(cables, end="\n\n")
-
         # Determine if cables may be shared and remove duplicates if so.
         if np.isin(["cost-shared"], list(df)):
             cables = list(set(cables))
+            cost_label = "cost-shared"
+        else:
+            cost_label = "cost-own"
 
-        print(cables)
+        cable_costs = 9 * len(cables)
+        battery_costs = 5000 * len(df[1:])
+        total_costs = cable_costs + battery_costs
+
+        if total_costs != df.loc[0][cost_label]:
+            raise check50.Failure(f"Costs in output.json is not equal to the "
+                                  f"computed costs.\n    Computed costs of "
+                                  f"{total_costs} is made up of:\n\t"
+                                  f"{len(cables)} cables: \t{len(cables)} * 9 "
+                                  f" \t= {cable_costs}\n\t{len(df[1:])} "
+                                  f"batteries: \t{len(df[1:])} * 5000 \t= "
+                                  f"{battery_costs}\n\tTotal costs: \t"
+                                  f"{cable_costs} + {battery_costs} \t= "
+                                  f"{total_costs}")
