@@ -89,8 +89,7 @@ def check_file():
             raise check50.Failure("Expected 1, 2 or 3 for 'district', but got:"
                                   f"\n\t{district}")
 
-
-        # Check labels for every battery.
+        # Check attributes for every battery.
         error = f"Expected batteries to have the attributes 'location', " \
                 f"'capacity' and 'houses', but did not find:\n"
         attributes = ["location", "capacity", "houses"]
@@ -110,7 +109,27 @@ def check_file():
         if missed_label:
             raise check50.Failure(error)
 
-        # Check labels for every house.
+        # Check if all houses are lists with dictionaries.
+        error = f"Expected houses to be lists of dictionaries, but found " \
+                f"that:\n"
+        found_error = False
+
+        for i in range(1, len(df)):
+            if type(df.loc[i]["houses"]) != list:
+                found_error = True
+                error = "".join([error, f"\t'houses' is not a list for battery "
+                                        f"{i}\n"])
+            else:
+                for j, house in enumerate(df.loc[i]["houses"]):
+                    if type(house) != dict:
+                        found_error = True
+                        error = "".join([error, f"\tHouse {j + 1} \tof battery "
+                                                f"{i} \tis not a dictionary\n"])
+
+        if found_error:
+            raise check50.Failure(error)
+
+        # Check attributes for every house.
         error = f"Expected houses to have the attributes 'location', " \
                 f"'output' and 'cables', but did not find:\n"
         attributes = ["location", "output", "cables"]
@@ -130,6 +149,28 @@ def check_file():
                                                 f"{i}\n"])
 
         if missed_label:
+            raise check50.Failure(error)
+
+        # Check if all cables are lists with strings.
+        error = f"Expected cables to be lists of strings, but found that:\n"
+        found_error = False
+
+        for i in range(1, len(df)):
+            for j, house in enumerate(df.loc[i]["houses"]):
+                if type(house["cables"]) != list:
+                    found_error = True
+                    error = "".join([error, f"\t'cables' is not a list for "
+                                            f"house {j + 1} of battery {i}\n"])
+                else:
+                    for k, cable in enumerate(house["cables"]):
+                        if type(cable) != str:
+                            found_error = True
+                            error = "".join([error, f"\tCable {k + 1} \tfrom "
+                                                    f"house {j + 1} \tof "
+                                                    f"battery {i} \tis not a "
+                                                    f"string\n"])
+
+        if found_error:
             raise check50.Failure(error)
 
         # Check for all batteries if the locations are in valid format.
