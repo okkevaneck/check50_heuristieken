@@ -109,8 +109,8 @@ def check_structure():
         # Create dict with coordinates of the print nets.
         print_pos_3d = {}
 
-        with open(f"data/chip_{chip_id}/print_{chip_id}.csv") as printfile:
-        # with open("print.csv") as printfile: # TODO: Remove and use above.
+        # with open(f"data/chip_{chip_id}/print_{chip_id}.csv") as printfile:
+        with open("print.csv") as printfile: # TODO: Remove and use above.
             print_df = pd.read_csv(printfile)
 
             for id, x, y in print_df.values:
@@ -142,7 +142,7 @@ def check_structure():
 
             for idx, net, coord_3d in net_errors:
                 error = "".join([error, f"\t'({coord_3d[0]},{coord_3d[1]},"
-                                        f"{coord_3d[2]})' or '({coord_3d[0]},"
+                                        f"{coord_3d[2]})' \tor '({coord_3d[0]},"
                                         f"{coord_3d[1]})' \tfor net {net} \ton "
                                         f"row {idx + 2}\n"])
 
@@ -150,7 +150,31 @@ def check_structure():
 
         # Check if any of the intermediate wires overlap. Only begin and end may
         # overlap since this is the net itself.
-        # TODO: Implement
+        wire_coords_3d_flatten = {}
+        wire_errors = []
+
+        for i, wires in enumerate(wire_coords_3d):
+            net_1, net_2 = df["net"].iloc[i][1:-1].split(",")
+            net_1_coord = print_pos_3d[int(net_1)]
+            net_2_coord = print_pos_3d[int(net_2)]
+
+            for c in wires:
+                if c != net_1_coord and c != net_2_coord:
+                    if c in wire_coords_3d_flatten:
+                        wire_errors.append([c, wire_coords_3d_flatten[c], i])
+                    else:
+                        wire_coords_3d_flatten[c] = i
+
+        if wire_errors:
+            error = "There may be no overlap between wires, but did found:\n"
+
+            for coord, row_1, row_2 in wire_errors:
+                error = "".join([error, f"\t'({coord[0]},{coord[1]},"
+                                        f"{coord[2]})' \tor '({coord[0]},"
+                                        f"{coord[1]})' \ton row {row_1} \tand "
+                                        f"row {row_2}\n"])
+
+            raise check50.Failure(error)
 
         # Check if the paths do connect the nets.
         # TODO: Implement
