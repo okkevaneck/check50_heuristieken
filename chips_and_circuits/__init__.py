@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 import os
 import re
+import networkx as nx
 
 
 @check50.check()
@@ -171,13 +172,57 @@ def check_structure():
             for coord, row_1, row_2 in wire_errors:
                 error = "".join([error, f"\t'({coord[0]},{coord[1]},"
                                         f"{coord[2]})' \tor '({coord[0]},"
-                                        f"{coord[1]})' \ton row {row_1} \tand "
-                                        f"row {row_2}\n"])
+                                        f"{coord[1]})' \ton row {row_1 + 2} \t"
+                                        f"and row {row_2 + 2}\n"])
 
             raise check50.Failure(error)
 
         # Check if the paths do connect the nets.
-        # TODO: Implement
+        connect_errors = []
+
+        for i, wires in enumerate(wire_coords_3d):
+            net_1, net_2 = df["net"].iloc[i][1:-1].split(",")
+            net_1_coord = print_pos_3d[int(net_1)]
+            net_2_coord = print_pos_3d[int(net_2)]
+
+            # Create a new graph and add nodes for origin and destination.
+            graph = nx.Graph()
+            graph.add_nodes_from([0, 1])
+            nodes = {net_1_coord: 0, net_2_coord: 1}
+
+            # Add nodes for all the wires.
+            for j, coord in enumerate(wires):
+                if coord != net_1_coord and coord != net_2_coord:
+                    graph.add_node(j + 2)
+                    nodes[coord] = j + 2
+
+            # Create edges between neighbouring nodes.
+            for coord, id in nodes.items():
+                cur_pos = list(coord)
+
+                # Check neighbours by changing a specific axis.
+                for move in [-3, -2, -1, 1, 2, 3]:
+                    cur_pos[abs(move) - 1] += move // abs(move)
+
+                    if tuple(cur_pos) in nodes:
+                        graph.add_edge(id, nodes[tuple(cur_pos)])
+
+                    cur_pos[abs(move) - 1] -= move // abs(move)
+
+            # Check if a path has been created between origin and destination.
+            if not nx.has_path(graph, 0, 1):
+                connect_errors.append([i, net_1, net_2])
+
+        if connect_errors:
+            error = "Expected wires to connect designated nets, but found " \
+                    "that:\n"
+
+            for row, net_1, net_2 in connect_errors:
+                error = "".join([error, f"\tNet {net_1} \tand net {net_2} \t"
+                                        f"were not connected with wires from "
+                                        f"row {row + 2}"])
+
+            raise check50.Failure(error)
 
 
 @check50.check(check_structure)
