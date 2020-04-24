@@ -100,5 +100,13 @@ explanation on how to use the check50.
 - Add info about cost specifier, i.e. use `cost-own` or `cost-shared` in `output.csv`.
 - Maybe add more info how the `.json` is structured in problem.
 
+##### Chips & Circuits
+- Rename `pritn.csv` for `chip_1` to `print.csv`.
+- Rewrite output alinea to be more precise about copying the `example_output.csv` and not the other two example files.
+- Remove spaces from all `.csv` files.
+- Add footer row with the chip number and the costs to the `example_output.csv`
+- Add info about how to use the footer in case.
+
 ### TODOs in (all) code:
 - Fix row numbers in the errors of Protein Powder, AmstelHaege and RailNL
+- Fix dependencies for all cases. Assume plain python install!

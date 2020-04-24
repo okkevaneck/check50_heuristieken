@@ -1,0 +1,5 @@
+check50:
+  checks: __init__.py
+  files:
+    - !exclude "*"
+    - !require "output.csv"
