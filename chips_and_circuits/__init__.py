@@ -31,7 +31,7 @@ def check_file():
     if os.stat("output.csv").st_size == 0:
         raise check50.Failure("Output.csv may not be empty. Provide at least "
                               "an header row and a row with the used chip and "
-                              "costs.")
+                              "wire length.")
 
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
@@ -228,7 +228,24 @@ def check_structure():
 @check50.check(check_structure)
 def check_cost():
     """Check if solution costs as much as specified in output.csv."""
-    pass
+    with open("output.csv") as csvfile:
+        df = pd.read_csv(csvfile)
+        wire_coords = [x[2:-2].split("),(") for x in df["wires"][:-1]]
+        wire_lengths = []
 
-    # TODO: Count number of wires and check if that number equals the costs in
-    #       output.csv
+        for i, wires in enumerate(wire_coords):
+            net_1, net_2 = df["net"].iloc[i][1:-1].split(",")
+            wire_lengths.append([net_1, net_2, len(wires) - 1])
+
+        wire_count = sum([x[2] for x in wire_lengths])
+
+        if wire_count != int(df["wires"].iloc[-1]):
+            error = f"Length in output.csv is not equal to the computed " \
+                    f"length.\n    Computed wire length of {wire_count} is " \
+                    f"made up of:\n"
+
+            for net_1, net_2, length in wire_lengths:
+                error = "".join([error, f"\t{length} \twires between net "
+                                        f"{net_1} \tand net {net_2}\n"])
+
+            raise check50.Failure(error)

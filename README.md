@@ -104,7 +104,7 @@ explanation on how to use the check50.
 - Rename `pritn.csv` for `chip_1` to `print.csv`.
 - Rewrite output alinea to be more precise about copying the `example_output.csv` and not the other two example files.
 - Remove spaces from all `.csv` files.
-- Add footer row with the chip number and the costs to the `example_output.csv`
+- Add footer row with the chip number and the length to the `example_output.csv`
 - Add info about how to use the footer in case.
 - Add info about the optional 3rd axis for coordinates.
 - Fix wrong wires and wrong letters in the example data.
