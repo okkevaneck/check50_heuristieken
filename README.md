@@ -106,6 +106,8 @@ explanation on how to use the check50.
 - Remove spaces from all `.csv` files.
 - Add footer row with the chip number and the costs to the `example_output.csv`
 - Add info about how to use the footer in case.
+- Add info about the optional 3rd axis for coordinates.
+- Fix wrong wires and wrong letters in the example data.
 
 ### TODOs in (all) code:
 - Fix row numbers in the errors of Protein Powder, AmstelHaege and RailNL
