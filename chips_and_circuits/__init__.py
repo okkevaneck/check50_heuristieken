@@ -4,7 +4,11 @@ This file uses check50 to check the output of an Chips & Circuits solution. It
 does so by doing the following tests in this order:
     - Check if output.csv exits
     - Check if the file has valid values and is structured correctly
-    - TODO: Add more tests!
+    - Check if all connections from the designated netlist have been made.
+    - Check if coordinates of the nets are in the wire lists
+    - Check if the wires do not overlap
+    - Check if the wires actually connect the designated nets
+    - Check if the length in output.csv is equal to the computed wire length
 
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com
@@ -42,22 +46,30 @@ def check_file():
                                   "'net,wires'")
 
         # Check footer for correct format.
-        if len(df) < 1 or df["net"].iloc[-1][:5] != "chip_":
+        if len(df) < 1 or df["net"].iloc[-1][:5] != "chip_" or \
+                df["net"].iloc[-1][6:11] != "_net_":
+
             raise check50.Failure("Expected last row of the csv to be "
-                                  "'chip_[1|2],<int>'")
+                                  "'chip_<int>_net_<int>,<int>'")
 
         try:
             int(df["wires"].iloc[-1])
-            chip_id = int(df["net"].iloc[-1][5:])
+            chip_id = int(df["net"].iloc[-1][5:6])
+            net_id = int(df["net"].iloc[-1][11:])
 
             # Check if chip in footer is either 1 or 2.
             if chip_id not in [1, 2]:
                 raise check50.Failure(f"Expected chip number to be 1 or 2, but "
                                       f"found:\n\tchip_{chip_id} \ton row "
                                       f"{len(df) + 1}")
+
+            if net_id not in list(range(1,7)):
+                raise check50.Failure(f"Expected chip number to be 1 till 6, "
+                                      f"but found:\n\tnet_{net_id} \ton row "
+                                      f"{len(df) + 1}")
         except ValueError:
             raise check50.Failure("Expected last row of the csv to be "
-                                  "'chip_[1|2],<int>'")
+                                  "'chip_<int>_net_<int>,<int>'")
 
         # Stop checking if no objects are in the output file.
         if len(df) == 1:
@@ -105,17 +117,45 @@ def check_structure():
     """Check if the structured solution of output.csv is correct."""
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
-        chip_id = int(df["net"].iloc[-1][5:])
+        chip_id = int(df["net"].iloc[-1][5:6])
+        net_id = int(df["net"].iloc[-1][11:])
 
         # Create dict with coordinates of the print nets.
         print_pos_3d = {}
 
-        # with open(f"data/chip_{chip_id}/print_{chip_id}.csv") as printfile:
-        with open("print.csv") as printfile: # TODO: Remove and use above.
+        with open(f"data/chip_{chip_id}/print_{chip_id}.csv") as printfile:
             print_df = pd.read_csv(printfile)
 
             for id, x, y in print_df.values:
                 print_pos_3d[id] = (x, y, 0)
+
+        # Check if all connections from netlist are specified.
+        with open(f"data/chip_{chip_id}/netlist_{net_id}.csv") as netlistfile:
+            netlist_df = pd.read_csv(netlistfile)
+            netlist_list = [tuple(n) for n in netlist_df.values.tolist()]
+            nets = [tuple(map(int, p[1:-1].split(",")))
+                    for p in df["net"][:-1].values.tolist()]
+
+            # Add flipped values as well.
+            for p in df["net"][:-1].values.tolist():
+                nets.append(tuple(map(int, p[1:-1].split(",")[::-1])))
+
+            net_errors = []
+
+            # Check if all required connections are made.
+            for nl in netlist_list:
+                if nl not in nets:
+                    net_errors.append(nl)
+
+            if net_errors:
+                error = "Expected all connections from the netlist to be in " \
+                        "the output, but did not find:\n"
+
+                for nl in net_errors:
+                    error = "".join([error, f"\t'({nl[0]},{nl[1]})' or "
+                                            f"'({nl[1]},{nl[0]})'\n"])
+
+                raise check50.Failure(error)
 
         # Create lists with all coordinates in 3D.
         wire_coords = [x[2:-2].split("),(") for x in df["wires"][:-1]]
@@ -177,7 +217,7 @@ def check_structure():
 
             raise check50.Failure(error)
 
-        # Check if the paths do connect the nets.
+        # Check if the wire lists do connect their designated nets.
         connect_errors = []
 
         for i, wires in enumerate(wire_coords_3d):
