@@ -110,5 +110,5 @@ explanation on how to use the check50.
 - Fix wrong wires and wrong letters in the example data.
 
 ### TODOs in (all) code:
-- Fix row numbers in the errors of Protein Powder, AmstelHaege and RailNL
+- Fix row numbers in the errors of and RailNL
 - Fix dependencies for all cases. Assume plain python install!

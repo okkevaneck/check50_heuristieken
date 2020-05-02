@@ -74,7 +74,7 @@ def check_file():
 
             for idx in idxs:
                 error = "".join([error, f"\t'{df['type'][idx]}' \ton row "
-                                        f"{idx + 1}\n"])
+                                        f"{idx + 2}\n"])
 
             raise check50.Failure(error)
 
@@ -87,7 +87,7 @@ def check_file():
 
             for idx in idxs:
                 error = "".join([error, f"\t'{df['structure'][idx]}' \ton row "
-                                        f"{idx + 1}.\n"])
+                                        f"{idx + 2}.\n"])
 
             raise check50.Failure(error)
 
@@ -116,7 +116,7 @@ def check_file():
 
                 for idx in idxs:
                     error = "".join([error, f"\t'{df[pos][idx]}' \ton row "
-                                            f"{idx + 1} in '{pos}' column.\n"])
+                                            f"{idx + 2} in '{pos}' column.\n"])
 
                 raise check50.Failure(error)
 
@@ -142,7 +142,7 @@ def check_file():
                 idx = df[df["structure"] == s[1]].index.tolist()[0]
                 error = "".join([error, f"\t{s[2]} instead of "
                                         f"{correct_areas[s[0]]}\t for '{s[1]}'"
-                                        f" on row {idx + 1}\n"])
+                                        f" on row {idx + 2}\n"])
 
             raise check50.Failure(error)
 
@@ -178,7 +178,7 @@ def check_placement():
             for s in overlap:
                 idx = df[df["structure"] == s[0]].index.tolist()[0]
                 error = "".join([error, f"\t{s[1]} was overlapped by '{s[0]}' "
-                                        f"   \ton row {idx + 1}\n"])
+                                        f"   \ton row {idx + 2}\n"])
 
             raise check50.Failure(error)
 
@@ -219,7 +219,7 @@ def check_placement():
                 idx = df[df["structure"] == s].index.tolist()[0]
                 error = "".join([error, f"\t'{s}' \t has {space} free meters "
                                         f"instead of {req_space} on row "
-                                        f"{idx + 1}\n"])
+                                        f"{idx + 2}\n"])
 
             raise check50.Failure(error)
 
@@ -233,7 +233,7 @@ def check_score():
         # Create a Polygon for each house.
         ps_houses = {}
 
-        for row in df[:-1][df.type != "WATER"].values:
+        for row in df.iloc[:-1].loc[df.type != "WATER"].values:
             p = Polygon(tuple(map(float, c.split(","))) for c in row[1:-1])
             ps_houses[row[0]] = p
 

@@ -44,8 +44,13 @@ def check_file():
                                   "'amino,fold'")
 
         # Check footer for correct format.
-        if len(df) < 1 or df['amino'].iloc[-1] != "score" or \
-                df['fold'].iloc[-1].dtype != int:
+        if len(df) < 1 or df['amino'].iloc[-1] != "score":
+            raise check50.Failure("Expected last row of the csv to be "
+                                  "'score,<integer>'")
+
+        try:
+            int(df['fold'].iloc[-1])
+        except ValueError:
             raise check50.Failure("Expected last row of the csv to be "
                                   "'score,<integer>'")
 
@@ -64,22 +69,22 @@ def check_file():
 
             for idx in idxs:
                 error = "".join([error, f"\t'{df['amino'][idx]}' \ton row "
-                                        f"{idx}\n"])
+                                        f"{idx + 2}\n"])
 
             raise check50.Failure(error)
 
         # Check if all values in the fold column are of correct datatype and
         # value, except for the last row.
         if df["fold"].dtype != "int" or df["fold"].iloc[-2] != 0:
-            error = "Invalid value(s) used for a fold. Expected natural " \
-                    "numbers, but found:\n"
+            error = "Invalid value(s) used for a fold. Expected integers, " \
+                    "but found:\n"
 
             for i, item in enumerate(df['fold']):
                 try:
                     int(item)
                 except ValueError:
                     error = "".join([error, f"\t'{df['fold'][i]}' \ton row "
-                                            f"{i}\n"])
+                                            f"{i + 2}\n"])
 
             if df["fold"].iloc[-2] != 0:
                 error = "".join([error, f"\t'{df['fold'].iloc[-2]}' \ton row "
