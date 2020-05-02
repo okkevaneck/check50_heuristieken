@@ -3,3 +3,6 @@ check50:
   files:
     - !exclude "*"
     - !require "output.csv"
+  dependencies:
+    - pandas
+    - numpy

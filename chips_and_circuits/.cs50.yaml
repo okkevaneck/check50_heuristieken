@@ -11,3 +11,7 @@ check50:
     - !include "data/chip_2/netlist_3.csv"
     - !include "data/chip_2/print_2.csv"
     - !require "output.csv"
+  dependencies:
+    - pandas
+    - numpy
+    - networkx

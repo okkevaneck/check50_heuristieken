@@ -7,3 +7,6 @@ check50:
     - !include "data/gen_students_data/ukraine/ukraine_regions.csv"
     - !include "data/gen_students_data/usa/usa_regions.csv"
     - !require "output.csv"
+  dependencies:
+    - pandas
+    - numpy
