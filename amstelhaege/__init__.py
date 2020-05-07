@@ -182,7 +182,7 @@ def check_placement():
 
             raise check50.Failure(error)
 
-        # Check if the area of the total map is 160x180.
+        # Check if the area of the total map is 180x160.
         polys = list(ps_water.values())
         polys.extend(list(ps_houses.values()))
         bounds = MultiPolygon(polys).bounds
@@ -195,7 +195,7 @@ def check_placement():
                                   f"180x160.")
 
         free_space = {}
-        house_polys = list(ps_houses.values())
+        house_polys = list(ps_houses.values()) # TODO: Add one big rectangle poly with hole in the middle for the map.
         min_extra_meters = [0, 2, 3, 6]
         invalid_houses = np.array([[0, 0, 0]], ndmin=2)
 
