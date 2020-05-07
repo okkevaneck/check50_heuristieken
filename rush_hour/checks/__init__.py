@@ -117,8 +117,8 @@ def check_moves():
         car_data = {}
 
         # Setup board.
-        for _, [car, orientation, x, y, length] in board_df.iterrows():
-            pos = [x, y]
+        for _, [car, orientation, row, col, length] in board_df.iterrows():
+            pos = [row, col]
             car_data[car] = [orientation, []]
 
             for _ in range(length):

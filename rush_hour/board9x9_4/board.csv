@@ -1,4 +1,4 @@
-car,orientation,x,y,length
+car,orientation,row,col,length
 A,H,2,9,3
 B,V,1,8,2
 C,H,7,8,3
