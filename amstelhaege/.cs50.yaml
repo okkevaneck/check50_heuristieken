@@ -6,4 +6,4 @@ check50:
   dependencies:
     - "pandas>=1.0.3"
     - "numpy>=1.18.4"
-    - "shapely>=1.7.0"
+    - Shapely>=1.7.0
