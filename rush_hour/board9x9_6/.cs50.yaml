@@ -4,3 +4,6 @@ check50:
     - !exclude "*"
     - !include "board.csv"
     - !require "output.csv"
+  dependencies:
+    - "numpy>=1.18.4"
+    - "pandas>=1.0.3"

@@ -5,5 +5,5 @@ check50:
     - !include "data/*"
     - !require "output.csv"
   dependencies:
-    - pandas
-    - numpy
+    - "numpy>=1.18.4"
+    - "pandas>=1.0.3"

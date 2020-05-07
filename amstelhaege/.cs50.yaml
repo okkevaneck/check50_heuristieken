@@ -4,6 +4,6 @@ check50:
     - !exclude "*"
     - !require "output.csv"
   dependencies:
-    - pandas
-    - numpy
-    - shapely
+    - "pandas>=1.0.3"
+    - "numpy>=1.18.4"
+    - "Shapely>=1.7.0"

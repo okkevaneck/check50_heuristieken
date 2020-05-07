@@ -4,5 +4,5 @@ check50:
     - !exclude "*"
     - !require "output.json"
   dependencies:
-    - pandas
-    - numpy
+    - "numpy>=1.18.4"
+    - "pandas>=1.0.3"
