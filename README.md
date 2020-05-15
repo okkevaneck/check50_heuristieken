@@ -108,7 +108,3 @@ explanation on how to use the check50.
 - Add info about how to use the footer in case.
 - Add info about the optional 3rd axis for coordinates.
 - Fix wrong wires and wrong letters in the example data.
-
-
-### TODOs
-- Add a check to Chips & Circuits for checking the maximum height of the cables.

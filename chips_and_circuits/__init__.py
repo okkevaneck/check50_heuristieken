@@ -189,34 +189,6 @@ def check_structure():
 
             raise check50.Failure(error)
 
-        # # Check if any of the intermediate wires overlap. Only begin and end may
-        # # overlap since this is the net itself.
-        # wire_coords_3d_flatten = {}
-        # wire_errors = []
-        #
-        # for i, wires in enumerate(wire_coords_3d):
-        #     net_1, net_2 = df["net"].iloc[i][1:-1].split(",")
-        #     net_1_coord = print_pos_3d[int(net_1)]
-        #     net_2_coord = print_pos_3d[int(net_2)]
-        #
-        #     for c in wires:
-        #         if c != net_1_coord and c != net_2_coord:
-        #             if c in wire_coords_3d_flatten:
-        #                 wire_errors.append([c, wire_coords_3d_flatten[c], i])
-        #             else:
-        #                 wire_coords_3d_flatten[c] = i
-        #
-        # if wire_errors:
-        #     error = "There may be no overlap between wires, but did found:\n"
-        #
-        #     for coord, row_1, row_2 in wire_errors:
-        #         error = "".join([error, f"\t'({coord[0]},{coord[1]},"
-        #                                 f"{coord[2]})' \tor '({coord[0]},"
-        #                                 f"{coord[1]})' \ton row {row_1 + 2} \t"
-        #                                 f"and row {row_2 + 2}\n"])
-        #
-        #     raise check50.Failure(error)
-
         # Check if the wire lists do connect their designated nets.
         connect_errors = []
 
@@ -260,8 +232,46 @@ def check_structure():
             for row, net_1, net_2 in connect_errors:
                 error = "".join([error, f"\tNet {net_1} \tand net {net_2} \t"
                                         f"were not connected with wires from "
-                                        f"row {row + 2}"])
+                                        f"row {row + 2}\n"])
 
+            raise check50.Failure(error)
+
+        # Check if there are wires which surpass the maximum height of 7.
+        invalid_height = [[(w, i + 1) for w in wires if w[2] > 7]
+                          for i, wires in enumerate(wire_coords_3d)]
+
+        error = "Wires cannot go higher than the 7th layer, but found:\n"
+        error_found = False
+
+        for height in invalid_height:
+            if height:
+                error_found = True
+                for wire, row in height:
+                    error = "".join([error, f"\tWire {wire} \ton row {row}\n"])
+
+        if error_found:
+            raise check50.Failure(error)
+
+        # Check if all coordinates fall within the dimensions of the base layer.
+        with open(f"data/chip_{chip_id}/print_{chip_id}.csv") as printfile:
+            print_df = pd.read_csv(printfile)
+            x_min = print_df["x"].min()
+            x_max = print_df["x"].max()
+            y_min = print_df["y"].min()
+            y_max = print_df["y"].max()
+
+        error = "All wires have to be placed within the dimensions of the " \
+                "base layer, but found:\n"
+        error_found = False
+
+        for i, wires in enumerate(wire_coords):
+            for wire in wires:
+                if wire[0] > x_max + 1 or wire[0] < x_min - 1 or \
+                        wire[1] > y_max + 1 or wire[1] < y_min - 1:
+                    error_found = True
+                    error = "".join([error, f"\tWire {wire} \ton row {i}\n"])
+
+        if error_found:
             raise check50.Failure(error)
 
 
