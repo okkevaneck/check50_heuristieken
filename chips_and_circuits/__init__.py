@@ -189,33 +189,33 @@ def check_structure():
 
             raise check50.Failure(error)
 
-        # Check if any of the intermediate wires overlap. Only begin and end may
-        # overlap since this is the net itself.
-        wire_coords_3d_flatten = {}
-        wire_errors = []
-
-        for i, wires in enumerate(wire_coords_3d):
-            net_1, net_2 = df["net"].iloc[i][1:-1].split(",")
-            net_1_coord = print_pos_3d[int(net_1)]
-            net_2_coord = print_pos_3d[int(net_2)]
-
-            for c in wires:
-                if c != net_1_coord and c != net_2_coord:
-                    if c in wire_coords_3d_flatten:
-                        wire_errors.append([c, wire_coords_3d_flatten[c], i])
-                    else:
-                        wire_coords_3d_flatten[c] = i
-
-        if wire_errors:
-            error = "There may be no overlap between wires, but did found:\n"
-
-            for coord, row_1, row_2 in wire_errors:
-                error = "".join([error, f"\t'({coord[0]},{coord[1]},"
-                                        f"{coord[2]})' \tor '({coord[0]},"
-                                        f"{coord[1]})' \ton row {row_1 + 2} \t"
-                                        f"and row {row_2 + 2}\n"])
-
-            raise check50.Failure(error)
+        # # Check if any of the intermediate wires overlap. Only begin and end may
+        # # overlap since this is the net itself.
+        # wire_coords_3d_flatten = {}
+        # wire_errors = []
+        #
+        # for i, wires in enumerate(wire_coords_3d):
+        #     net_1, net_2 = df["net"].iloc[i][1:-1].split(",")
+        #     net_1_coord = print_pos_3d[int(net_1)]
+        #     net_2_coord = print_pos_3d[int(net_2)]
+        #
+        #     for c in wires:
+        #         if c != net_1_coord and c != net_2_coord:
+        #             if c in wire_coords_3d_flatten:
+        #                 wire_errors.append([c, wire_coords_3d_flatten[c], i])
+        #             else:
+        #                 wire_coords_3d_flatten[c] = i
+        #
+        # if wire_errors:
+        #     error = "There may be no overlap between wires, but did found:\n"
+        #
+        #     for coord, row_1, row_2 in wire_errors:
+        #         error = "".join([error, f"\t'({coord[0]},{coord[1]},"
+        #                                 f"{coord[2]})' \tor '({coord[0]},"
+        #                                 f"{coord[1]})' \ton row {row_1 + 2} \t"
+        #                                 f"and row {row_2 + 2}\n"])
+        #
+        #     raise check50.Failure(error)
 
         # Check if the wire lists do connect their designated nets.
         connect_errors = []
@@ -270,7 +270,44 @@ def check_cost():
     """Check if solution costs as much as specified in output.csv."""
     with open("output.csv") as csvfile:
         df = pd.read_csv(csvfile)
+        chip_id = int(df["net"].iloc[-1][5:6])
+
+        # Create dict with coordinates of the print nets.
+        print_pos_3d = {}
+
+        with open(f"data/chip_{chip_id}/print_{chip_id}.csv") as printfile:
+            print_df = pd.read_csv(printfile)
+
+            for id, x, y in print_df.values:
+                print_pos_3d[id] = (x, y, 0)
+
+        # Create lists with all coordinates in 3D.
         wire_coords = [x[2:-2].split("),(") for x in df["wires"][:-1]]
+        wire_coords = [[tuple(int(c) for c in coord.split(","))
+                        for coord in coords] for coords in wire_coords]
+        wire_coords_3d = [[c if len(c) == 3 else (c[0], c[1], 0)
+                           for c in coords] for coords in wire_coords]
+
+        # Check if any of the intermediate wires overlap. Only begin and end may
+        # overlap since this is the net itself.
+        wire_coords_3d_flatten = {}
+        wire_errors = []
+
+        for i, wires in enumerate(wire_coords_3d):
+            net_1, net_2 = df["net"].iloc[i][1:-1].split(",")
+            net_1_coord = print_pos_3d[int(net_1)]
+            net_2_coord = print_pos_3d[int(net_2)]
+
+            for c in wires:
+                if c != net_1_coord and c != net_2_coord:
+                    if c in wire_coords_3d_flatten:
+                        wire_errors.append([c, wire_coords_3d_flatten[c], i])
+                    else:
+                        wire_coords_3d_flatten[c] = i
+
+        intersections = len(wire_errors)
+
+        # Compute the total number of wires used.
         wire_lengths = []
 
         for i, wires in enumerate(wire_coords):
@@ -279,13 +316,19 @@ def check_cost():
 
         wire_count = sum([x[2] for x in wire_lengths])
 
-        if wire_count != int(df["wires"].iloc[-1]):
+        # Check if the total costs are equal to the ones in output.csv.
+        total_costs = wire_count + 300 * intersections
+
+        if total_costs != int(df["wires"].iloc[-1]):
             error = f"Length in output.csv is not equal to the computed " \
-                    f"length.\n    Computed wire length of {wire_count} is " \
+                    f"length.\n    Computed wire length of {total_costs} is " \
                     f"made up of:\n"
 
             for net_1, net_2, length in wire_lengths:
                 error = "".join([error, f"\t{length} \twires between net "
                                         f"{net_1} \tand net {net_2}\n"])
+            error = "".join([error, f"\t{300  * intersections} \textra costs "
+                                    f"for 300 * {intersections} "
+                                    f"intersections\n"])
 
             raise check50.Failure(error)
