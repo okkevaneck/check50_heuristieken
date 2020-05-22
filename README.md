@@ -1,7 +1,10 @@
 # Check50 for Heuristics
 **Author:** Okke van Eck  
+**GitHub**: [Link to the original repo](https://github.com/OkkeVanEck/check50_heuristieken "Okke van Eck - check50_heuristieken")  
 **Check50 Docs:** https://cs50.readthedocs.io/check50/  
 **Note:** All `test.py` files are gitignored!  
+This repository has the check50 checks for the heuristics (or programmeertheorie) cases,
+as well as an overview of the necessary changes that needed to be made to the original version of the course.
 
 #### Setup check environment.
 You must have python3 installed and a possibility for creating a virtual
