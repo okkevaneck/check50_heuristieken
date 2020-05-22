@@ -58,14 +58,14 @@ def check_file():
             net_id = int(df["net"].iloc[-1][11:])
 
             # Check if chip in footer is either 1 or 2.
-            if chip_id not in [1, 2]:
-                raise check50.Failure(f"Expected chip number to be 1 or 2, but "
-                                      f"found:\n\tchip_{chip_id} \ton row "
+            if chip_id not in [0, 1, 2]:
+                raise check50.Failure(f"Expected chip number to be 0, 1 or 2, "
+                                      f"but found:\n\tchip_{chip_id} \ton row "
                                       f"{len(df) + 1}")
 
-            if net_id not in list(range(1,7)):
-                raise check50.Failure(f"Expected chip number to be 1 till 6, "
-                                      f"but found:\n\tnet_{net_id} \ton row "
+            if net_id not in list(range(1,10)):
+                raise check50.Failure(f"Expected netlist number to be 1 till 9,"
+                                      f" but found:\n\tnet_{net_id} \ton row "
                                       f"{len(df) + 1}")
         except ValueError:
             raise check50.Failure("Expected last row of the csv to be "
