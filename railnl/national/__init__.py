@@ -100,7 +100,7 @@ def check_file():
 
         # Check if all stations in output.csv are specified in stations.csv.
         # with open(os.path.abspath("stations.csv")) as stationsfile:
-        with open("stations.csv") as stationsfile:
+        with open(r"data/stations.csv") as stationsfile:
             existing_stations = pd.read_csv(stationsfile)["station"]
             loaded_stations = df["stations"][:-1].map(lambda x: x[1:-1]
                                                       .split(", ")).values
@@ -126,7 +126,7 @@ def check_file():
 def check_tracks():
     """Check if the solution is valid."""
     with open("output.csv") as csvfile, \
-        open(r"connections.csv") as connectionsfile:
+        open(r"data/connections.csv") as connectionsfile:
         # open(os.path.abspath("data/connections.csv")) as connectionsfile:
         df = pd.read_csv(csvfile)
         connections = pd.read_csv(connectionsfile)
@@ -186,7 +186,7 @@ def check_tracks():
 def check_score():
     """Check if solution produces score specified in output.csv."""
     with open("output.csv") as csvfile, \
-        open(r"connections.csv") as connectionsfile:
+        open(r"data/connections.csv") as connectionsfile:
         # open(os.path.abspath("data/connections.csv")) as connectionsfile:
 
         df = pd.read_csv(csvfile)
