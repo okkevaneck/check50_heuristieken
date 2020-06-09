@@ -26,7 +26,9 @@ MAX_TRACKS = 0
 
 @check50.check()
 def exists():
-    """Check if output.csv exists."""
+    """
+    Check if output.csv exists and load the data from the specified problem.
+    """
     check50.exists("output.csv")
     check50.include("data")
 

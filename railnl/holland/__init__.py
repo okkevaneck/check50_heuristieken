@@ -11,13 +11,9 @@ holland problem folder.
 """
 checks = __import__("check50").import_checks("../checks")
 from checks import *
-import check50
 
 # Global from the national test to specify the maximum time in minutes per
 # track and maximum number of tracks. This global is changed according to the
 # holland problem and will be used during the tests.
 checks.MAX_TIME = 120
 checks.MAX_TRACKS = 7
-
-# Include data for the holland problem.
-# check50.include("data")

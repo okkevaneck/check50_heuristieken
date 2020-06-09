@@ -9,12 +9,6 @@ national problem folder.
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com
 """
-import check50
-import os
-import pathlib
-# check50.include("./data")
-
-
 checks = __import__("check50").import_checks("../checks")
 from checks import *
 
@@ -23,5 +17,3 @@ from checks import *
 # holland problem and will be used during the tests.
 checks.MAX_TIME = 180
 checks.MAX_TRACKS = 20
-
-# Include data for the national problem.
