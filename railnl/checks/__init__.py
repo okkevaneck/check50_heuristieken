@@ -28,6 +28,7 @@ MAX_TRACKS = 0
 def exists():
     """Check if output.csv exists."""
     check50.exists("output.csv")
+    check50.include("data")
 
 
 @check50.check(exists)
@@ -127,7 +128,6 @@ def check_tracks():
     """Check if the solution is valid."""
     with open("output.csv") as csvfile, \
             open(r"data/connections.csv") as connectionsfile:
-            # open(os.path.abspath("data/connections.csv")) as connectionsfile:
         df = pd.read_csv(csvfile)
         connections = pd.read_csv(connectionsfile)
 
@@ -187,7 +187,6 @@ def check_score():
     """Check if solution produces score specified in output.csv."""
     with open("output.csv") as csvfile, \
         open(r"data/connections.csv") as connectionsfile:
-        # open(os.path.abspath("data/connections.csv")) as connectionsfile:
 
         df = pd.read_csv(csvfile)
         connections = pd.read_csv(connectionsfile)

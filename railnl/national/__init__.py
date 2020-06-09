@@ -9,9 +9,14 @@ national problem folder.
 @author: Okke van Eck
 @contact: okke.van.eck@gmail.com
 """
+import check50
+import os
+import pathlib
+# check50.include("./data")
+
+
 checks = __import__("check50").import_checks("../checks")
 from checks import *
-import check50
 
 # Global from the national test to specify the maximum time in minutes per
 # track and maximum number of tracks. This global is changed according to the
@@ -20,4 +25,3 @@ checks.MAX_TIME = 180
 checks.MAX_TRACKS = 20
 
 # Include data for the national problem.
-check50.include("data")
