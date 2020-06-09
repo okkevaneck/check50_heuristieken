@@ -20,4 +20,4 @@ checks.MAX_TIME = 180
 checks.MAX_TRACKS = 20
 
 # Include data for the national problem.
-check50.include("../data")
+check50.include("data")
