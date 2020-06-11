@@ -26,6 +26,7 @@ import networkx as nx
 def exists():
     """Check if output.csv exists."""
     check50.exists("output.csv")
+    check50.include("data/")
 
 
 @check50.check(exists)
