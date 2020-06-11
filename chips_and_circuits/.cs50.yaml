@@ -2,14 +2,6 @@ check50:
   checks: __init__.py
   files:
     - !exclude "*"
-#    - !include "data/chip_1/netlist_1.csv"
-#    - !include "data/chip_1/netlist_2.csv"
-#    - !include "data/chip_1/netlist_3.csv"
-#    - !include "data/chip_1/print_1.csv"
-#    - !include "data/chip_2/netlist_1.csv"
-#    - !include "data/chip_2/netlist_2.csv"
-#    - !include "data/chip_2/netlist_3.csv"
-#    - !include "data/chip_2/print_2.csv"
     - !require "output.csv"
   dependencies:
     - "numpy>=1.18.4"
