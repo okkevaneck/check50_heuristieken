@@ -23,7 +23,10 @@ import os
 def exists():
     """Check if output.csv exists."""
     check50.exists("output.csv")
-    check50.include("data/gen_students_data/*")
+    check50.include("data/gen_students_data/china/")
+    check50.include("data/gen_students_data/russia/")
+    check50.include("data/gen_students_data/ukraine/")
+    check50.include("data/gen_students_data/usa/")
 
 
 @check50.check(exists)
