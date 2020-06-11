@@ -29,6 +29,7 @@ CORNER_LABELS = [f"corner_{x}" for x in range(1, 5)]
 def exists():
     """Check if output.csv exists."""
     check50.exists("output.csv")
+    check50.include("neighbourhoods/")
 
 
 @check50.check(exists)
