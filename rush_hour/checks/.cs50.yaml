@@ -2,7 +2,6 @@ check50:
   checks: __init__.py
   files:
     - !exclude "*"
-#    - !include "board.csv"
     - !require "output.csv"
   dependencies:
     - "numpy>=1.18.4"
