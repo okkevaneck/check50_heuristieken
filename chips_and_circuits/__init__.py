@@ -64,7 +64,7 @@ def check_file():
                                       f"but found:\n\tchip_{chip_id} \ton row "
                                       f"{len(df) + 1}")
 
-            if net_id not in list(range(1,10)):
+            if net_id not in list(range(1, 10)):
                 raise check50.Failure(f"Expected netlist number to be 1 till 9,"
                                       f" but found:\n\tnet_{net_id} \ton row "
                                       f"{len(df) + 1}")
